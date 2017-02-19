@@ -20,10 +20,10 @@ import java.io.Closeable;
 import java.util.List;
 import java.util.Map;
 
-import com.ait.tooling.common.api.types.IActivatable;
 import com.mongodb.MongoClientOptions;
 import com.mongodb.MongoCredential;
 import com.mongodb.ServerAddress;
+import com.themodernway.common.api.types.IActivatable;
 import com.themodernway.server.mongodb.MongoDB;
 
 public interface IMongoDBDescriptor extends IMongoDBConfigurationBase, IActivatable, Closeable

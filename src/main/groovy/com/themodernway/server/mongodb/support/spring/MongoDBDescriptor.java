@@ -26,11 +26,11 @@ import java.util.Objects;
 
 import org.apache.log4j.Logger;
 
-import com.ait.tooling.common.api.java.util.StringOps;
-import com.ait.tooling.common.api.types.Activatable;
 import com.mongodb.MongoClientOptions;
 import com.mongodb.MongoCredential;
 import com.mongodb.ServerAddress;
+import com.themodernway.common.api.java.util.StringOps;
+import com.themodernway.common.api.types.Activatable;
 import com.themodernway.server.core.support.spring.IPropertiesResolver;
 import com.themodernway.server.core.support.spring.ServerContextInstance;
 import com.themodernway.server.mongodb.MongoDB;

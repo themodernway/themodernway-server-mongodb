@@ -16,7 +16,7 @@
 
 package com.themodernway.server.mongodb.support.spring;
 
-import com.ait.tooling.common.api.types.INamed;
+import com.themodernway.common.api.types.INamed;
 
 public interface IMongoDBConfigurationBase extends INamed
 {

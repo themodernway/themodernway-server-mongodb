@@ -16,7 +16,7 @@
 
 package com.themodernway.server.mongodb.support.spring;
 
-import com.ait.tooling.common.api.java.util.StringOps;
+import com.themodernway.common.api.java.util.StringOps;
 
 public class MongoDBCollectionOptions implements IMongoDBCollectionOptions
 {

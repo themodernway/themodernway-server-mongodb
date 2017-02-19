@@ -53,7 +53,6 @@ import org.bson.codecs.configuration.CodecRegistry;
 import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
 
-import com.ait.tooling.common.api.java.util.StringOps;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientOptions;
 import com.mongodb.MongoCredential;
@@ -69,6 +68,7 @@ import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.MongoIterable;
 import com.mongodb.client.model.IndexOptions;
 import com.mongodb.client.model.UpdateOptions;
+import com.themodernway.common.api.java.util.StringOps;
 import com.themodernway.server.core.json.JSONUtils;
 import com.themodernway.server.mongodb.support.spring.IMongoDBCollectionOptions;
 import com.themodernway.server.mongodb.support.spring.IMongoDBOptions;
