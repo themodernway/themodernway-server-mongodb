@@ -14,19 +14,19 @@ Maven:
 <dependency>
   <groupId>com.themodernway</groupId>
   <artifactId>themodernway-server-mongodb</artifactId>
-  <version>1.0.0-RC3</version>
+  <version>1.0.0-RC4</version>
 </dependency>
 ```
 Gradle:
 
 ```
 dependencies {
-    compile(group:'com.themodernway',name:'themodernway-server-mongodb',version:'1.0.0-RC3')
+    compile(group:'com.themodernway',name:'themodernway-server-mongodb',version:'1.0.0-RC4')
 }
 ```
 Javadoc URL:
 
-https://lienzo-core.com/documents/javadoc/themodernway-server-mongodb
+https://www.themodernway.com/documents/javadoc/themodernway-server-mongodb
 
 License:
 
