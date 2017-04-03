@@ -26,7 +26,7 @@ dependencies {
 ```
 Javadoc URL:
 
-https://www.themodernway.com/documents/javadoc/themodernway-server-mongodb
+http://docs.themodernway.com/documents/javadoc/themodernway-server-mongodb/
 
 License:
 
