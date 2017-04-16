@@ -41,6 +41,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 
 import org.apache.log4j.Logger;
 import org.bson.BSON;
@@ -69,13 +70,17 @@ import com.mongodb.client.MongoIterable;
 import com.mongodb.client.model.IndexOptions;
 import com.mongodb.client.model.UpdateOptions;
 import com.themodernway.common.api.java.util.StringOps;
+import com.themodernway.common.api.types.INamed;
+import com.themodernway.server.core.ICoreCommon;
 import com.themodernway.server.core.json.JSONUtils;
 import com.themodernway.server.mongodb.support.spring.IMongoDBCollectionOptions;
 import com.themodernway.server.mongodb.support.spring.IMongoDBOptions;
 
-public final class MongoDB
+public final class MongoDB implements ICoreCommon
 {
-    private static final Logger                logger = Logger.getLogger(MongoDB.class);
+    private static final Logger                logger   = Logger.getLogger(MongoDB.class);
+
+    private static final UpdateOptions         UPSERT_T = new UpdateOptions().upsert(true);
 
     private final MongoClient                  m_mongo;
 
@@ -86,7 +91,7 @@ public final class MongoDB
     private final Map<String, IMongoDBOptions> m_dbops;
 
     @SuppressWarnings("unchecked")
-    private static final Map<String, Object> CAST_MAP(Map<String, ?> map)
+    private static final Map<String, Object> CAST_MAP(final Map<String, ?> map)
     {
         return (Map<String, Object>) Objects.requireNonNull(map);
     }
@@ -95,9 +100,9 @@ public final class MongoDB
     {
         m_useid = useid;
 
-        m_dbops = Objects.requireNonNull(dbops);
+        m_dbops = requireNonNull(dbops);
 
-        m_usedb = StringOps.requireTrimOrNull(usedb);
+        m_usedb = requireTrimOrNull(usedb);
 
         BSON.addEncodingHook(BigDecimal.class, new Transformer()
         {
@@ -143,22 +148,22 @@ public final class MongoDB
             }
             if ((null == auth) || (auth.isEmpty()))
             {
-                m_mongo = new MongoClient(main, Objects.requireNonNull(opts));
+                m_mongo = new MongoClient(main, requireNonNull(opts));
             }
             else
             {
-                m_mongo = new MongoClient(main, auth, Objects.requireNonNull(opts));
+                m_mongo = new MongoClient(main, auth, requireNonNull(opts));
             }
         }
         else
         {
             if ((null == auth) || (auth.isEmpty()))
             {
-                m_mongo = new MongoClient(addr, Objects.requireNonNull(opts));
+                m_mongo = new MongoClient(addr, requireNonNull(opts));
             }
             else
             {
-                m_mongo = new MongoClient(addr, auth, Objects.requireNonNull(opts));
+                m_mongo = new MongoClient(addr, auth, requireNonNull(opts));
             }
         }
     }
@@ -178,24 +183,24 @@ public final class MongoDB
 
     public List<String> getDatabaseNames()
     {
-        return m_mongo.listDatabaseNames().into(new ArrayList<String>());
-    }
-
-    public final MDatabase db(final String name) throws Exception
-    {
-        return db(StringOps.requireTrimOrNull(name), isAddingID());
+        return toUnmodifiableList(toUniqueStringList(m_mongo.listDatabaseNames().into(arrayList())));
     }
 
     public final MDatabase db() throws Exception
     {
-        return db(m_usedb, isAddingID());
+        return db(m_usedb);
+    }
+
+    public final MDatabase db(final String name) throws Exception
+    {
+        return db(name, isAddingID());
     }
 
     public final MDatabase db(String name, boolean id) throws Exception
     {
-        name = StringOps.requireTrimOrNull(name);
+        name = requireTrimOrNull(name);
 
-        IMongoDBOptions op = m_dbops.get(name);
+        final IMongoDBOptions op = m_dbops.get(name);
 
         if (null != op)
         {
@@ -204,7 +209,7 @@ public final class MongoDB
         return new MDatabase(m_mongo.getDatabase(name), id, op);
     }
 
-    public static final class MDatabase
+    public static final class MDatabase implements ICoreCommon, INamed
     {
         private final MongoDatabase   m_db;
 
@@ -218,7 +223,7 @@ public final class MongoDB
 
             m_op = op;
 
-            m_db = Objects.requireNonNull(db);
+            m_db = requireNonNull(db);
         }
 
         public boolean isCreateID()
@@ -226,6 +231,7 @@ public final class MongoDB
             return m_id;
         }
 
+        @Override
         public final String getName()
         {
             return m_db.getName();
@@ -238,17 +244,17 @@ public final class MongoDB
 
         public final boolean isCollection(final String name)
         {
-            return getCollectionNames().contains(StringOps.requireTrimOrNull(name));
+            return getCollectionNames().contains(requireTrimOrNull(name));
         }
 
         public final List<String> getCollectionNames()
         {
-            return m_db.listCollectionNames().into(new ArrayList<String>());
+            return toUnmodifiableList(toUniqueStringList(m_db.listCollectionNames().into(arrayList())));
         }
 
         public final MCollection collection(String name) throws Exception
         {
-            name = StringOps.requireTrimOrNull(name);
+            name = requireTrimOrNull(name);
 
             if (null != m_op)
             {
@@ -264,7 +270,7 @@ public final class MongoDB
 
         public final MCollection collection(String name, final MCollectionPreferences opts) throws Exception
         {
-            name = StringOps.requireTrimOrNull(name);
+            name = requireTrimOrNull(name);
 
             boolean crid = isCreateID();
 
@@ -370,7 +376,7 @@ public final class MongoDB
         }
     }
 
-    public static final class MCollection
+    public static final class MCollection implements ICoreCommon, INamed
     {
         private final MongoCollection<Document> m_collection;
 
@@ -378,7 +384,7 @@ public final class MongoDB
 
         protected MCollection(final MongoCollection<Document> collection, final boolean id)
         {
-            m_collection = Objects.requireNonNull(collection);
+            m_collection = requireNonNull(collection);
 
             m_id = id;
         }
@@ -388,6 +394,7 @@ public final class MongoDB
             return m_id;
         }
 
+        @Override
         public final String getName()
         {
             return m_collection.getNamespace().getCollectionName();
@@ -400,17 +407,17 @@ public final class MongoDB
 
         public final String createIndex(final Map<String, ?> keys, final String name)
         {
-            return m_collection.createIndex(new Document(CAST_MAP(keys)), new IndexOptions().name(Objects.requireNonNull(name)));
+            return m_collection.createIndex(new Document(CAST_MAP(keys)), new IndexOptions().name(requireNonNull(name)));
         }
 
         public final String createIndex(final Map<String, ?> keys, final IndexOptions opts)
         {
-            return m_collection.createIndex(new Document(CAST_MAP(keys)), Objects.requireNonNull(opts));
+            return m_collection.createIndex(new Document(CAST_MAP(keys)), requireNonNull(opts));
         }
 
         public final MCollection dropIndex(final String name)
         {
-            m_collection.dropIndex(Objects.requireNonNull(name));
+            m_collection.dropIndex(requireNonNull(name));
 
             return this;
         }
@@ -430,17 +437,17 @@ public final class MongoDB
         @SafeVarargs
         public final <T extends Document> MAggregateCursor aggregate(final T... list)
         {
-            return aggregate(new MAggregationPipeline(Objects.requireNonNull(list)));
+            return aggregate(new MAggregationPipeline(requireNonNull(list)));
         }
 
         public final <T extends Document> MAggregateCursor aggregate(final List<T> list)
         {
-            return aggregate(new MAggregationPipeline(Objects.requireNonNull(list)));
+            return aggregate(new MAggregationPipeline(requireNonNull(list)));
         }
 
         public final MAggregateCursor aggregate(final MAggregationPipeline pipeline)
         {
-            return new MAggregateCursor(m_collection.aggregate(Objects.requireNonNull(pipeline.list())));
+            return new MAggregateCursor(m_collection.aggregate(requireNonNull(pipeline.list())));
         }
 
         public final void drop()
@@ -448,40 +455,33 @@ public final class MongoDB
             m_collection.drop();
         }
 
-        public final MCollection deleteMany(final Map<String, ?> query)
+        public final long deleteMany(final Map<String, ?> query)
         {
-            return deleteMany(new MQuery(Objects.requireNonNull(query)));
+            return deleteMany(new MQuery(query));
         }
 
-        public final MCollection deleteMany(final MQuery query)
+        public final long deleteMany(final MQuery query)
         {
-            m_collection.deleteMany(Objects.requireNonNull(query));
-
-            return this;
+            return m_collection.deleteMany(requireNonNull(query)).getDeletedCount();
         }
 
-        public final MCollection deleteOne(final Map<String, ?> query)
+        public final boolean deleteOne(final Map<String, ?> query)
         {
-            return deleteOne(new MQuery(Objects.requireNonNull(query)));
+            return deleteOne(new MQuery(query));
         }
 
-        public final MCollection deleteOne(final MQuery query)
+        public final boolean deleteOne(final MQuery query)
         {
-            m_collection.deleteOne(Objects.requireNonNull(query));
-
-            return this;
+            return (m_collection.deleteOne(requireNonNull(query)).getDeletedCount() == 1L);
         }
 
-        @SuppressWarnings("unchecked")
         public final Map<String, ?> ensureHasID(final Map<String, ?> update)
         {
-            Objects.requireNonNull(update);
-
             final Object id = update.get("id");
 
-            if ((false == (id instanceof String)) || (null == StringOps.toTrimOrNull(id.toString())))
+            if ((false == (id instanceof String)) || (null == toTrimOrNull(id.toString())))
             {
-                ((Map<String, Object>) update).put("id", (new ObjectId()).toString());
+                CAST_MAP(update).put("id", (new ObjectId()).toString());
             }
             return update;
         }
@@ -490,7 +490,7 @@ public final class MongoDB
         {
             if (isCreateID())
             {
-                final Map<String, ?> withid = ensureHasID(Objects.requireNonNull(record));
+                final Map<String, ?> withid = ensureHasID(requireNonNull(record));
 
                 m_collection.insertOne(new Document(CAST_MAP(withid)));
 
@@ -506,8 +506,6 @@ public final class MongoDB
 
         public final MCollection insertMany(final List<Map<String, ?>> list)
         {
-            Objects.requireNonNull(list);
-
             if (list.isEmpty())
             {
                 logger.warn("MCollection.insertMany(empty)");
@@ -516,11 +514,11 @@ public final class MongoDB
             }
             if (1 == list.size())
             {
-                insertOne(Objects.requireNonNull(list.get(0)));// let this do checkID
+                insertOne(requireNonNull(list.get(0))); // let this do checkID
 
                 return this;
             }
-            final ArrayList<Document> save = new ArrayList<Document>(list.size());
+            final List<Document> save = arrayList();
 
             if (isCreateID())
             {
@@ -541,6 +539,11 @@ public final class MongoDB
             return this;
         }
 
+        public final String getNameSpace()
+        {
+            return m_collection.getNamespace().toString();
+        }
+
         public final long count()
         {
             return m_collection.count();
@@ -548,22 +551,17 @@ public final class MongoDB
 
         public final long count(final Map<String, ?> query)
         {
-            return count(new MQuery(Objects.requireNonNull(query)));
+            return count(new MQuery(query));
         }
 
         public final long count(final MQuery query)
         {
-            return m_collection.count(Objects.requireNonNull(query));
+            return m_collection.count(requireNonNull(query));
         }
 
         public final MCursor find() throws Exception
         {
             return find(false);
-        }
-
-        final String getNameSpace()
-        {
-            return m_collection.getNamespace().toString();
         }
 
         public final MCursor find(final boolean with_id) throws Exception
@@ -580,124 +578,148 @@ public final class MongoDB
 
         public final MCursor find(final Map<String, ?> query) throws Exception
         {
-            return find(new MQuery(Objects.requireNonNull(query)), false);
+            return find(query, false);
         }
 
         public final MCursor find(final MQuery query) throws Exception
         {
-            return find(Objects.requireNonNull(query), false);
+            return find(query, false);
         }
 
         public final MCursor find(final Map<String, ?> query, final boolean with_id) throws Exception
         {
-            return find(new MQuery(Objects.requireNonNull(query)), with_id);
+            return find(new MQuery(query), with_id);
         }
 
         public final MCursor find(final MQuery query, final boolean with_id) throws Exception
         {
             if (with_id)
             {
-                return new MCursor(m_collection.find(Objects.requireNonNull(query)));
+                return new MCursor(m_collection.find(requireNonNull(query)));
             }
             else
             {
-                return new MCursor(m_collection.find(Objects.requireNonNull(query)).projection(MProjection.NO_ID()));
+                return new MCursor(m_collection.find(requireNonNull(query)).projection(MProjection.NO_ID()));
             }
         }
 
         public final MCursor find(final Map<String, ?> query, final Map<String, ?> fields) throws Exception
         {
-            return find(new MQuery(Objects.requireNonNull(query)), new MProjection(Objects.requireNonNull(fields)));
+            return find(new MQuery(query), new MProjection(fields));
         }
 
         public final MCursor find(final MQuery query, final Map<String, ?> fields) throws Exception
         {
-            return find(Objects.requireNonNull(query), new MProjection(Objects.requireNonNull(fields)));
+            return find(query, new MProjection(fields));
         }
 
         public final MCursor find(final Map<String, ?> query, final MProjection fields) throws Exception
         {
-            return find(new MQuery(Objects.requireNonNull(query)), Objects.requireNonNull(fields), false);
+            return find(new MQuery(query), requireNonNull(fields), false);
         }
 
         public final MCursor find(final MQuery query, final MProjection fields) throws Exception
         {
-            return find(Objects.requireNonNull(query), Objects.requireNonNull(fields), false);
+            return find(query, requireNonNull(fields), false);
         }
 
         public final MCursor find(final Map<String, ?> query, final Map<String, ?> fields, final boolean with_id) throws Exception
         {
-            return find(new MQuery(Objects.requireNonNull(query)), new MProjection(Objects.requireNonNull(fields)), with_id);
+            return find(new MQuery(query), new MProjection(fields), with_id);
         }
 
         public final MCursor find(final Map<String, ?> query, final MProjection fields, final boolean with_id) throws Exception
         {
-            return find(new MQuery(Objects.requireNonNull(query)), Objects.requireNonNull(fields), with_id);
+            return find(new MQuery(query), requireNonNull(fields), with_id);
         }
 
         public final MCursor find(final MQuery query, final MProjection fields, final boolean with_id) throws Exception
         {
             if (with_id)
             {
-                return new MCursor(m_collection.find(Objects.requireNonNull(query)).projection(Objects.requireNonNull(fields)));
+                return new MCursor(m_collection.find(requireNonNull(query)).projection(requireNonNull(fields)));
             }
             else
             {
-                return new MCursor(m_collection.find(Objects.requireNonNull(query)).projection(MProjection.FIELDS(Objects.requireNonNull(fields), MProjection.NO_ID())));
+                return new MCursor(m_collection.find(requireNonNull(query)).projection(MProjection.FIELDS(requireNonNull(fields), MProjection.NO_ID())));
             }
         }
 
         public final Map<String, ?> findAndModify(final Map<String, ?> query, final Map<String, ?> update)
         {
-            return update(new MQuery(Objects.requireNonNull(query)), Objects.requireNonNull(update), false, true);
+            return update(new MQuery(query), update, false, true);
         }
 
         public final Map<String, ?> findAndModify(final MQuery query, final Map<String, ?> update)
         {
-            return update(Objects.requireNonNull(query), Objects.requireNonNull(update), false, true);
+            return update(query, update, false, true);
         }
 
         public final Map<String, ?> upsert(final Map<String, ?> query, final Map<String, ?> update)
         {
-            return upsert(new MQuery(Objects.requireNonNull(query)), Objects.requireNonNull(update));
+            return update(new MQuery(query), update, true, false);
+        }
+
+        public final Map<String, ?> upsert(final Map<String, ?> query, final Map<String, ?> update, final boolean multi)
+        {
+            return update(new MQuery(query), update, true, multi);
         }
 
         public final Map<String, ?> upsert(final MQuery query, final Map<String, ?> update)
         {
-            return update(Objects.requireNonNull(query), Objects.requireNonNull(update), true, true);
+            return update(query, update, true, false);
         }
 
-        public final Map<String, ?> create(final Map<String, ?> record)
+        public final Map<String, ?> upsert(final MQuery query, final Map<String, ?> update, final boolean multi)
         {
-            return insertOne(Objects.requireNonNull(record));
+            return update(query, update, true, multi);
         }
 
         public final Map<String, ?> update(final Map<String, ?> query, final Map<String, ?> update, final boolean upsert, final boolean multi)
         {
-            return update(new MQuery(Objects.requireNonNull(query)), Objects.requireNonNull(update), upsert, multi);
+            return update(new MQuery(query), update, upsert, multi);
         }
 
         public final Map<String, ?> update(final MQuery query, final Map<String, ?> update, final boolean upsert, final boolean multi)
         {
             if (multi)
             {
-                m_collection.updateMany(Objects.requireNonNull(query), new Document(CAST_MAP(update)), new UpdateOptions().upsert(upsert));
+                if (upsert)
+                {
+                    m_collection.updateMany(requireNonNull(query), new Document(CAST_MAP(update)), UPSERT_T);
+                }
+                else
+                {
+                    m_collection.updateMany(requireNonNull(query), new Document(CAST_MAP(update)));
+                }
             }
             else
             {
-                m_collection.updateOne(Objects.requireNonNull(query), new Document(CAST_MAP(update)), new UpdateOptions().upsert(upsert));
+                if (upsert)
+                {
+                    m_collection.updateOne(requireNonNull(query), new Document(CAST_MAP(update)), UPSERT_T);
+                }
+                else
+                {
+                    m_collection.updateOne(requireNonNull(query), new Document(CAST_MAP(update)));
+                }
             }
             return update;
         }
 
+        public final Map<String, ?> create(final Map<String, ?> record)
+        {
+            return insertOne(requireNonNull(record));
+        }
+
         public final Map<String, ?> findOne(final Map<String, ?> query)
         {
-            return findOne(new MQuery(Objects.requireNonNull(query)));
+            return findOne(new MQuery(query));
         }
 
         public final Map<String, ?> findOne(final MQuery query)
         {
-            FindIterable<Document> iter = m_collection.find(Objects.requireNonNull(query)).limit(1).projection(MProjection.NO_ID());
+            FindIterable<Document> iter = m_collection.find(requireNonNull(query)).limit(1).projection(MProjection.NO_ID());
 
             if (null != iter)
             {
@@ -706,34 +728,44 @@ public final class MongoDB
             return null;
         }
 
+        public final Optional<Map<String, ?>> findOneOptional(final Map<String, ?> query)
+        {
+            return Optional.ofNullable(findOne(new MQuery(query)));
+        }
+
+        public final Optional<Map<String, ?>> findOneOptional(final MQuery query)
+        {
+            return Optional.ofNullable(findOne(query));
+        }
+
         public final boolean updateOne(final Map<String, ?> query, final Map<String, ?> update)
         {
-            return updateOne(new MQuery(Objects.requireNonNull(query)), Objects.requireNonNull(update));
+            return updateOne(new MQuery(query), update);
         }
 
         public final boolean updateOne(final MQuery query, final Map<String, ?> update)
         {
-            return (m_collection.updateOne(Objects.requireNonNull(query), new Document(CAST_MAP(update))).getModifiedCount() == 1L);
+            return (m_collection.updateOne(requireNonNull(query), new Document(CAST_MAP(update))).getModifiedCount() == 1L);
         }
 
         public final long updateMany(final Map<String, ?> query, final Map<String, ?> update)
         {
-            return updateMany(new MQuery(Objects.requireNonNull(query)), Objects.requireNonNull(update));
+            return updateMany(new MQuery(query), update);
         }
 
         public final long updateMany(final MQuery query, final Map<String, ?> update)
         {
-            return m_collection.updateMany(Objects.requireNonNull(query), new Document(CAST_MAP(update)), new UpdateOptions().upsert(false)).getModifiedCount();
+            return m_collection.updateMany(requireNonNull(query), new Document(CAST_MAP(update))).getModifiedCount();
         }
 
         public final List<?> distinct(final String field)
         {
-            return m_collection.distinct(StringOps.requireTrimOrNull(field), Document.class).into(new ArrayList<Document>());
+            return m_collection.distinct(requireTrimOrNull(field), Document.class).into(arrayList());
         }
 
         public final List<?> distinct(final String field, final Map<String, ?> query)
         {
-            return m_collection.distinct(StringOps.requireTrimOrNull(field), Document.class).filter(new Document(CAST_MAP(query))).into(new ArrayList<Document>());
+            return m_collection.distinct(requireTrimOrNull(field), Document.class).filter(new Document(CAST_MAP(query))).into(arrayList());
         }
     }
 
@@ -840,7 +872,7 @@ public final class MongoDB
         public <A extends Collection<? super Map<String, ?>>> A into(A target);
     }
 
-    protected static abstract class AbstractMCursor<T extends MongoIterable<Document>>implements IMCursor
+    protected static abstract class AbstractMCursor<T extends MongoIterable<Document>> implements IMCursor
     {
         private final T                     m_iterab;
 
@@ -972,7 +1004,7 @@ public final class MongoDB
 
         public MCursor sort(final Map<String, ?> sort)
         {
-            return sort(new MSort(Objects.requireNonNull(sort)));
+            return sort(new MSort(sort));
         }
 
         public MCursor sort(final MSort sort)
@@ -992,10 +1024,9 @@ public final class MongoDB
         {
         }
 
-        @SuppressWarnings("unchecked")
         public MSort(final Map<String, ?> map)
         {
-            super((Map<String, Object>) map);
+            super(CAST_MAP(map));
         }
 
         public static final MSort ASCENDING(final String... fields)
@@ -1081,10 +1112,9 @@ public final class MongoDB
         {
         }
 
-        @SuppressWarnings("unchecked")
         public MProjection(final Map<String, ?> map)
         {
-            super(Objects.requireNonNull((Map<String, Object>) map));
+            super(CAST_MAP(map));
         }
 
         private MProjection(final String name, final BsonValue value)
@@ -1165,10 +1195,9 @@ public final class MongoDB
         {
         }
 
-        @SuppressWarnings("unchecked")
         public MQuery(final Map<String, ?> map)
         {
-            super(Objects.requireNonNull((Map<String, Object>) map));
+            super(CAST_MAP(map));
         }
 
         public static final MQuery QUERY(final Map<String, ?> map)
