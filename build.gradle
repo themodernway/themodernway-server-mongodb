@@ -31,17 +31,20 @@ import org.apache.tools.ant.filters.ReplaceTokens
 import java.net.InetAddress
 import org.ajoberstar.grgit.Grgit
 
+apply plugin: 'pmd'
 apply plugin: 'maven'
 apply plugin: 'groovy'
 apply plugin: 'jacoco'
 apply plugin: 'signing'
 apply plugin: 'eclipse'
+apply plugin: 'findbugs'
+apply plugin: 'checkstyle'
 
 sourceCompatibility = 1.8
 
 targetCompatibility = 1.8
 
-version = '1.0.12-RELEASE'
+version = '1.1.0-RELEASE'
 
 group = 'com.themodernway'
 
@@ -50,6 +53,13 @@ eclipse {
         downloadJavadoc = true
     }
 }
+
+checkstyle {
+    toolVersion = "7.7"
+    ignoreFailures = true
+}
+
+tasks.withType(Checkstyle) { source 'src/main' }
 
 task deleteConfigs(type: Delete) {
     FileTree tree = fileTree(dir: "${buildDir}/resources/main")
@@ -86,6 +96,33 @@ task javadocJar(type: Jar, dependsOn: doJavaDocs) {
     classifier = 'javadoc'
     from "${buildDir}/docs/javadoc"
 }
+
+pmd {
+    ignoreFailures = true
+    toolVersion = "5.6.1"
+    ruleSets = [
+        'java-basic',
+        'java-braces'
+        ]
+}
+    
+findbugs {
+    ignoreFailures = true
+    toolVersion = "3.0.1"
+    effort = "max"
+    excludeFilter = project.file('config/findbugs/filter.xml')
+}
+
+tasks.withType(FindBugs) {
+    reports {
+        xml.enabled false
+        html.enabled true
+    }
+}
+
+task checkCodeQuality << { println ":checkCodeQuality-done" }
+
+checkCodeQuality.dependsOn checkstyleMain,pmdMain,findbugsMain
 
 compileJava.dependsOn(clean)
 
@@ -199,8 +236,8 @@ tasks.withType(GroovyCompile) {
 }
 
 dependencies {
-    compile(group: 'com.themodernway', name: 'themodernway-server-core', version: '1.0.12-RELEASE')
-    compile(group: 'org.mongodb', name: 'mongodb-driver', version: '3.4.2')
+    compile(group: 'com.themodernway', name: 'themodernway-server-core', version: '1.1.0-RELEASE')
+    compile(group: 'org.mongodb', name: 'mongodb-driver', version: '3.4.3')
     testCompile(group: 'log4j', name: 'log4j', version: '1.2.17')
     testCompile(group: 'log4j', name: 'apache-log4j-extras', version:'1.2.17')
     testCompile(group: 'org.slf4j', name: 'slf4j-api', version: '1.7.25')

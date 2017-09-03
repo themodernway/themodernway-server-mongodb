@@ -24,8 +24,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-import org.apache.log4j.Logger;
-
 import com.mongodb.MongoClientOptions;
 import com.mongodb.MongoCredential;
 import com.mongodb.ServerAddress;
@@ -37,8 +35,6 @@ import com.themodernway.server.mongodb.MongoDB;
 
 public class MongoDBDescriptor extends Activatable implements IMongoDBDescriptor
 {
-    private static final Logger                    logger     = Logger.getLogger(MongoDBDescriptor.class);
-
     private String                                 m_name;
 
     private MongoDB                                m_mongo_db;
@@ -78,143 +74,128 @@ public class MongoDBDescriptor extends Activatable implements IMongoDBDescriptor
     @Override
     public boolean setActive(final boolean active)
     {
-        if (null == m_addrlist)
+        if ((null == m_addrlist) && (false == init()))
         {
-            if (false == init())
-            {
-                return false;
-            }
+            return false;
         }
         return super.setActive(active);
     }
 
     private final boolean init()
     {
-        try
+        if (null == m_baseprop)
         {
-            if (null == m_baseprop)
+            m_baseprop = MongoDBContextInstance.getMongoDBContextInstance().getMongoDBProvider().getMongoDBDefaultPropertiesBase();
+        }
+        final IPropertiesResolver prop = ServerContextInstance.getServerContextInstance().getPropertiesResolver();
+
+        setName(prop.getPropertyByName(m_baseprop + ".name"));
+
+        setDefaultDB(prop.getPropertyByName(m_baseprop + ".db"));
+
+        setReplicas(Boolean.valueOf(prop.getPropertyByName(m_baseprop + ".replicas", "false")));
+
+        setCreateID(Boolean.valueOf(prop.getPropertyByName(m_baseprop + ".createid", "false")));
+
+        final ArrayList<ServerAddress> addrlist = new ArrayList<ServerAddress>();
+
+        for (String name : StringOps.requireTrimOrNull(prop.getPropertyByName(m_baseprop + ".host.list")).split(","))
+        {
+            name = StringOps.toTrimOrNull(name);
+
+            if (null != name)
             {
-                m_baseprop = MongoDBContextInstance.getMongoDBContextInstance().getMongoDBProvider().getMongoDBDefaultPropertiesBase();
+                final String addr = StringOps.requireTrimOrNull(prop.getPropertyByName(m_baseprop + ".host." + name + ".addr"));
+
+                final String port = StringOps.requireTrimOrNull(prop.getPropertyByName(m_baseprop + ".host." + name + ".port"));
+
+                addrlist.add(new ServerAddress(addr, Integer.parseInt(port)));
             }
-            final IPropertiesResolver prop = ServerContextInstance.getServerContextInstance().getPropertiesResolver();
+        }
+        if (addrlist.isEmpty())
+        {
+            throw new IllegalArgumentException("no MongoDB server address");
+        }
+        m_addrlist = addrlist;
 
-            setName(prop.getPropertyByName(m_baseprop + ".name"));
+        m_authlist = new ArrayList<MongoCredential>();
 
-            setDefaultDB(prop.getPropertyByName(m_baseprop + ".db"));
+        final String temp = StringOps.toTrimOrNull(prop.getPropertyByName(m_baseprop + ".auth.list"));
 
-            setReplicas(Boolean.valueOf(prop.getPropertyByName(m_baseprop + ".replicas", "false")));
-
-            setCreateID(Boolean.valueOf(prop.getPropertyByName(m_baseprop + ".createid", "false")));
-
-            final ArrayList<ServerAddress> addrlist = new ArrayList<ServerAddress>();
-
-            for (String name : StringOps.requireTrimOrNull(prop.getPropertyByName(m_baseprop + ".host.list")).split(","))
+        if (null != temp)
+        {
+            for (String name : temp.split(","))
             {
                 name = StringOps.toTrimOrNull(name);
 
                 if (null != name)
                 {
-                    final String addr = StringOps.requireTrimOrNull(prop.getPropertyByName(m_baseprop + ".host." + name + ".addr"));
+                    final String user = StringOps.requireTrimOrNull(prop.getPropertyByName(m_baseprop + ".auth." + name + ".user"));
 
-                    final String port = StringOps.requireTrimOrNull(prop.getPropertyByName(m_baseprop + ".host." + name + ".port"));
+                    final String pass = StringOps.requireTrimOrNull(prop.getPropertyByName(m_baseprop + ".auth." + name + ".pass"));
 
-                    addrlist.add(new ServerAddress(addr, Integer.valueOf(port)));
+                    final String data = StringOps.requireTrimOrNull(prop.getPropertyByName(m_baseprop + ".auth." + name + ".db"));
+
+                    m_authlist.add(MongoCredential.createCredential(user, data, pass.toCharArray()));
                 }
             }
-            if (addrlist.isEmpty())
+        }
+        if (null == getClientOptions())
+        {
+            setClientOptions(MongoClientOptions.builder().connectionsPerHost(getConnectionPoolSize()).threadsAllowedToBlockForConnectionMultiplier(getConnectionMultiplier()).connectTimeout(getConnectionTimeout()).build());
+        }
+        m_doptions = new LinkedHashMap<String, IMongoDBOptions>();
+
+        final String conf = StringOps.toTrimOrNull(prop.getPropertyByName(m_baseprop + ".dbconfig.list"));
+
+        if (null != conf)
+        {
+            for (String name : conf.split(","))
             {
-                throw new IllegalArgumentException("no MongoDB server address");
-            }
-            m_addrlist = addrlist;
+                name = StringOps.toTrimOrNull(name);
 
-            m_authlist = new ArrayList<MongoCredential>();
-
-            final String temp = StringOps.toTrimOrNull(prop.getPropertyByName(m_baseprop + ".auth.list"));
-
-            if (null != temp)
-            {
-                for (String name : temp.split(","))
+                if ((null != name) && (null == m_doptions.get(name)))
                 {
-                    name = StringOps.toTrimOrNull(name);
+                    boolean doid = isCreateID();
 
-                    if (null != name)
+                    final ArrayList<IMongoDBCollectionOptions> list = new ArrayList<IMongoDBCollectionOptions>();
+
+                    final String dbid = StringOps.toTrimOrNull(prop.getPropertyByName(m_baseprop + ".dbconfig." + name + ".createid"));
+
+                    if (null != dbid)
                     {
-                        final String user = StringOps.requireTrimOrNull(prop.getPropertyByName(m_baseprop + ".auth." + name + ".user"));
-
-                        final String pass = StringOps.requireTrimOrNull(prop.getPropertyByName(m_baseprop + ".auth." + name + ".pass"));
-
-                        final String data = StringOps.requireTrimOrNull(prop.getPropertyByName(m_baseprop + ".auth." + name + ".db"));
-
-                        m_authlist.add(MongoCredential.createCredential(user, data, pass.toCharArray()));
+                        doid = Boolean.valueOf(dbid);
                     }
-                }
-            }
-            if (null == getClientOptions())
-            {
-                setClientOptions(MongoClientOptions.builder().connectionsPerHost(getConnectionPoolSize()).threadsAllowedToBlockForConnectionMultiplier(getConnectionMultiplier()).connectTimeout(getConnectionTimeout()).build());
-            }
-            m_doptions = new LinkedHashMap<String, IMongoDBOptions>();
+                    final String base = m_baseprop + ".dbconfig." + name + ".collections";
 
-            final String conf = StringOps.toTrimOrNull(prop.getPropertyByName(m_baseprop + ".dbconfig.list"));
+                    final String cols = StringOps.toTrimOrNull(prop.getPropertyByName(base));
 
-            if (null != conf)
-            {
-                for (String name : conf.split(","))
-                {
-                    name = StringOps.toTrimOrNull(name);
-
-                    if (null != name)
+                    if (null != cols)
                     {
-                        if (null == m_doptions.get(name))
+                        for (String coln : cols.split(","))
                         {
-                            boolean doid = isCreateID();
+                            coln = StringOps.toTrimOrNull(coln);
 
-                            final ArrayList<IMongoDBCollectionOptions> list = new ArrayList<IMongoDBCollectionOptions>();
-
-                            final String dbid = StringOps.toTrimOrNull(prop.getPropertyByName(m_baseprop + ".dbconfig." + name + ".createid"));
-
-                            if (null != dbid)
+                            if (null != coln)
                             {
-                                doid = Boolean.valueOf(dbid);
-                            }
-                            final String base = m_baseprop + ".dbconfig." + name + ".collections";
+                                final String icid = StringOps.toTrimOrNull(prop.getPropertyByName(base + "." + coln + ".createid"));
 
-                            final String cols = StringOps.toTrimOrNull(prop.getPropertyByName(base));
-
-                            if (null != cols)
-                            {
-                                for (String coln : cols.split(","))
+                                if (null != icid)
                                 {
-                                    coln = StringOps.toTrimOrNull(coln);
-
-                                    if (null != coln)
-                                    {
-                                        final String icid = StringOps.toTrimOrNull(prop.getPropertyByName(base + "." + coln + ".createid"));
-
-                                        if (null != icid)
-                                        {
-                                            list.add(new MongoDBCollectionOptions(coln, Boolean.valueOf(icid)));
-                                        }
-                                        else
-                                        {
-                                            list.add(new MongoDBCollectionOptions(coln, doid));
-                                        }
-                                    }
+                                    list.add(new MongoDBCollectionOptions(coln, Boolean.valueOf(icid)));
+                                }
+                                else
+                                {
+                                    list.add(new MongoDBCollectionOptions(coln, doid));
                                 }
                             }
-                            m_doptions.put(name, new MongoDBOptions(name, doid, list));
                         }
                     }
+                    m_doptions.put(name, new MongoDBOptions(name, doid, list));
                 }
             }
-            return true;
         }
-        catch (Exception e)
-        {
-            logger.error("error initializing MongoDBDescriptor", e);
-
-            return false;
-        }
+        return true;
     }
 
     @Override

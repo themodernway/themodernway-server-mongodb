@@ -36,7 +36,7 @@ public class MongoDBOptions implements IMongoDBOptions
 
         m_name = StringOps.requireTrimOrNull(name);
 
-        for (IMongoDBCollectionOptions opts : Objects.requireNonNull(list))
+        for (final IMongoDBCollectionOptions opts : Objects.requireNonNull(list))
         {
             final String coll = StringOps.requireTrimOrNull(opts.getName());
 

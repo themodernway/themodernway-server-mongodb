@@ -86,7 +86,7 @@ public class MongoDBProvider implements BeanFactoryAware, IMongoDBProvider
     @ManagedOperation(description = "Close all MongoDB Descriptors")
     public void close() throws IOException
     {
-        for (IMongoDBDescriptor descriptor : m_descriptors.values())
+        for (final IMongoDBDescriptor descriptor : m_descriptors.values())
         {
             try
             {
@@ -94,7 +94,7 @@ public class MongoDBProvider implements BeanFactoryAware, IMongoDBProvider
 
                 descriptor.close();
             }
-            catch (Exception e)
+            catch (final Exception e)
             {
                 logger.error("Error closing MongoDB Descriptor " + descriptor.getName(), e);
             }
@@ -106,7 +106,7 @@ public class MongoDBProvider implements BeanFactoryAware, IMongoDBProvider
     {
         if (factory instanceof DefaultListableBeanFactory)
         {
-            for (IMongoDBDescriptor descriptor : ((DefaultListableBeanFactory) factory).getBeansOfType(IMongoDBDescriptor.class).values())
+            for (final IMongoDBDescriptor descriptor : ((DefaultListableBeanFactory) factory).getBeansOfType(IMongoDBDescriptor.class).values())
             {
                 descriptor.setActive(true);
 

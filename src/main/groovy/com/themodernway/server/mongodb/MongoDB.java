@@ -119,13 +119,13 @@ public final class MongoDB implements ICoreCommon
         BSON.addEncodingHook(BigInteger.class, new Transformer()
         {
             @Override
-            public Object transform(Object object)
+            public Object transform(final Object object)
             {
                 if (null == object)
                 {
                     return null;
                 }
-                Long lval = JSONUtils.asLong(object);
+                final Long lval = JSONUtils.asLong(object);
 
                 if (null != lval)
                 {
@@ -343,7 +343,7 @@ public final class MongoDB implements ICoreCommon
             return (false == ((null == m_write) && (null == m_prefs) && (null == m_codec)));
         }
 
-        final MCollection withCollectionOptions(final MongoCollection<Document> collection, boolean id)
+        final MCollection withCollectionOptions(final MongoCollection<Document> collection, final boolean id)
         {
             return new MCollection(withCodecRegistry(withReadPreference(withWriteConcern(collection, m_write), m_prefs), m_codec), id);
         }
@@ -522,14 +522,14 @@ public final class MongoDB implements ICoreCommon
 
             if (isCreateID())
             {
-                for (Map<String, ?> lmap : list)
+                for (final Map<String, ?> lmap : list)
                 {
                     save.add(new Document(CAST_MAP(ensureHasID(lmap))));
                 }
             }
             else
             {
-                for (Map<String, ?> lmap : list)
+                for (final Map<String, ?> lmap : list)
                 {
                     save.add(new Document(CAST_MAP(ensureHasID(lmap))));
                 }
@@ -719,7 +719,7 @@ public final class MongoDB implements ICoreCommon
 
         public final Map<String, ?> findOne(final MQuery query)
         {
-            FindIterable<Document> iter = m_collection.find(requireNonNull(query)).limit(1).projection(MProjection.NO_ID());
+            final FindIterable<Document> iter = m_collection.find(requireNonNull(query)).limit(1).projection(MProjection.NO_ID());
 
             if (null != iter)
             {
@@ -895,7 +895,7 @@ public final class MongoDB implements ICoreCommon
         }
 
         @Override
-        public <A extends Collection<? super Map<String, ?>>> A into(A target)
+        public <A extends Collection<? super Map<String, ?>>> A into(final A target)
         {
             final A result = m_iterab.into(target);
 
@@ -903,7 +903,7 @@ public final class MongoDB implements ICoreCommon
             {
                 close();
             }
-            catch (IOException e)
+            catch (final IOException e)
             {
                 logger.error("Error in AbstractMCursor.into() ", e);
             }
@@ -927,7 +927,7 @@ public final class MongoDB implements ICoreCommon
                 {
                     close();
                 }
-                catch (Exception e)
+                catch (final Exception e)
                 {
                     logger.error("Error in AbstractMCursor.close() ", e);
                 }
@@ -1060,19 +1060,18 @@ public final class MongoDB implements ICoreCommon
 
             final MSort sort = new MSort();
 
-            for (MSort s : sorts)
+            for (final MSort s : sorts)
             {
                 if (null != s)
                 {
-                    for (String k : s.keySet())
-                    {
+                    s.forEach((k, v) -> {
                         if (null != StringOps.toTrimOrNull(k))
                         {
                             sort.remove(k);
 
                             sort.append(k, s.get(k));
                         }
-                    }
+                    });
                 }
                 else
                 {
@@ -1088,7 +1087,7 @@ public final class MongoDB implements ICoreCommon
 
             final MSort sort = new MSort();
 
-            for (String name : fields)
+            for (final String name : fields)
             {
                 if (null != StringOps.toTrimOrNull(name))
                 {
@@ -1156,7 +1155,7 @@ public final class MongoDB implements ICoreCommon
         {
             final MProjection projection = new MProjection();
 
-            for (MProjection p : projections)
+            for (final MProjection p : projections)
             {
                 for (String k : p.keySet())
                 {
@@ -1247,7 +1246,7 @@ public final class MongoDB implements ICoreCommon
         }
 
         @SafeVarargs
-        public static final <T> MQuery NIN(String name, T... list)
+        public static final <T> MQuery NIN(final String name, final T... list)
         {
             return NIN(StringOps.requireTrimOrNull(name), Arrays.asList(list));
         }
