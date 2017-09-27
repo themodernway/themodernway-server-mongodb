@@ -26,22 +26,32 @@ import static com.mongodb.client.model.Filters.lt;
 import static com.mongodb.client.model.Filters.lte;
 import static com.mongodb.client.model.Filters.ne;
 import static com.mongodb.client.model.Filters.nin;
+import static com.mongodb.client.model.Filters.nor;
 import static com.mongodb.client.model.Filters.not;
 import static com.mongodb.client.model.Filters.or;
+import static com.mongodb.client.model.Filters.regex;
+import static com.themodernway.server.mongodb.IMongoConstants.DOCUMENT;
+import static com.themodernway.server.mongodb.IMongoConstants.ENSUREID;
+import static com.themodernway.server.mongodb.IMongoConstants.INCLUDE_N;
+import static com.themodernway.server.mongodb.IMongoConstants.INCLUDE_Y;
+import static com.themodernway.server.mongodb.IMongoConstants.MONGODB_ID_KEY;
+import static com.themodernway.server.mongodb.IMongoConstants.ORDER_A;
+import static com.themodernway.server.mongodb.IMongoConstants.ORDER_D;
+import static com.themodernway.server.mongodb.IMongoConstants.UPSERT_OPTIONS_TRUE;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
+import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
 import org.bson.BSON;
@@ -52,7 +62,6 @@ import org.bson.Document;
 import org.bson.Transformer;
 import org.bson.codecs.configuration.CodecRegistry;
 import org.bson.conversions.Bson;
-import org.bson.types.ObjectId;
 
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientOptions;
@@ -68,19 +77,20 @@ import com.mongodb.client.MongoCursor;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.MongoIterable;
 import com.mongodb.client.model.IndexOptions;
-import com.mongodb.client.model.UpdateOptions;
+import com.themodernway.common.api.java.util.CommonOps;
 import com.themodernway.common.api.java.util.StringOps;
 import com.themodernway.common.api.types.INamed;
 import com.themodernway.server.core.ICoreCommon;
 import com.themodernway.server.core.json.JSONUtils;
+import com.themodernway.server.core.logging.IHasLogging;
 import com.themodernway.server.mongodb.support.spring.IMongoDBCollectionOptions;
 import com.themodernway.server.mongodb.support.spring.IMongoDBOptions;
 
-public final class MongoDB implements ICoreCommon
+public final class MongoDB implements ICoreCommon, Serializable
 {
-    private static final Logger                logger   = Logger.getLogger(MongoDB.class);
+    private static final long                  serialVersionUID = 1L;
 
-    private static final UpdateOptions         UPSERT_T = new UpdateOptions().upsert(true);
+    private static final Logger                m_logger         = Logger.getLogger(MongoDB.class);
 
     private final MongoClient                  m_mongo;
 
@@ -89,12 +99,6 @@ public final class MongoDB implements ICoreCommon
     private final boolean                      m_useid;
 
     private final Map<String, IMongoDBOptions> m_dbops;
-
-    @SuppressWarnings("unchecked")
-    private static final Map<String, Object> CAST_MAP(final Map<String, ?> map)
-    {
-        return (Map<String, Object>) Objects.requireNonNull(map);
-    }
 
     public MongoDB(final List<ServerAddress> addr, final List<MongoCredential> auth, final MongoClientOptions opts, final boolean repl, final String usedb, final boolean useid, final Map<String, IMongoDBOptions> dbops)
     {
@@ -168,6 +172,12 @@ public final class MongoDB implements ICoreCommon
         }
     }
 
+    @Override
+    public Logger logger()
+    {
+        return m_logger;
+    }
+
     public boolean isAddingID()
     {
         return m_useid;
@@ -209,13 +219,17 @@ public final class MongoDB implements ICoreCommon
         return new MDatabase(m_mongo.getDatabase(name), id, op);
     }
 
-    public static final class MDatabase implements ICoreCommon, INamed
+    public static final class MDatabase implements ICoreCommon, INamed, Serializable
     {
+        private static final long     serialVersionUID = 1L;
+
         private final MongoDatabase   m_db;
 
         private final IMongoDBOptions m_op;
 
         private final boolean         m_id;
+
+        private static final Logger   m_logger         = Logger.getLogger(MDatabase.class);
 
         protected MDatabase(final MongoDatabase db, final boolean id, final IMongoDBOptions op) throws Exception
         {
@@ -224,6 +238,12 @@ public final class MongoDB implements ICoreCommon
             m_op = op;
 
             m_db = requireNonNull(db);
+        }
+
+        @Override
+        public Logger logger()
+        {
+            return m_logger;
         }
 
         public boolean isCreateID()
@@ -291,13 +311,17 @@ public final class MongoDB implements ICoreCommon
         }
     }
 
-    public static final class MCollectionPreferences
+    public static final class MCollectionPreferences implements IHasLogging, Serializable
     {
+        private static final long    serialVersionUID = 1L;
+
         private final WriteConcern   m_write;
 
         private final ReadPreference m_prefs;
 
         private final CodecRegistry  m_codec;
+
+        private static final Logger  m_logger         = Logger.getLogger(MCollectionPreferences.class);
 
         public MCollectionPreferences(final WriteConcern write, final ReadPreference prefs, final CodecRegistry codec)
         {
@@ -374,19 +398,35 @@ public final class MongoDB implements ICoreCommon
             }
             return collection.withCodecRegistry(codec);
         }
+
+        @Override
+        public Logger logger()
+        {
+            return m_logger;
+        }
     }
 
-    public static final class MCollection implements ICoreCommon, INamed
+    public static final class MCollection implements ICoreCommon, INamed, Serializable
     {
+        private static final long               serialVersionUID = 1L;
+
         private final MongoCollection<Document> m_collection;
 
         private final boolean                   m_id;
+
+        private static final Logger             m_logger         = Logger.getLogger(MCollection.class);
 
         protected MCollection(final MongoCollection<Document> collection, final boolean id)
         {
             m_collection = requireNonNull(collection);
 
             m_id = id;
+        }
+
+        @Override
+        public Logger logger()
+        {
+            return m_logger;
         }
 
         public boolean isCreateID()
@@ -402,17 +442,17 @@ public final class MongoDB implements ICoreCommon
 
         public final String createIndex(final Map<String, ?> keys)
         {
-            return m_collection.createIndex(new Document(CAST_MAP(keys)));
+            return m_collection.createIndex(DOCUMENT(keys));
         }
 
         public final String createIndex(final Map<String, ?> keys, final String name)
         {
-            return m_collection.createIndex(new Document(CAST_MAP(keys)), new IndexOptions().name(requireNonNull(name)));
+            return m_collection.createIndex(DOCUMENT(keys), new IndexOptions().name(requireNonNull(name)));
         }
 
         public final String createIndex(final Map<String, ?> keys, final IndexOptions opts)
         {
-            return m_collection.createIndex(new Document(CAST_MAP(keys)), requireNonNull(opts));
+            return m_collection.createIndex(DOCUMENT(keys), requireNonNull(opts));
         }
 
         public final MCollection dropIndex(final String name)
@@ -447,7 +487,7 @@ public final class MongoDB implements ICoreCommon
 
         public final MAggregateCursor aggregate(final MAggregationPipeline pipeline)
         {
-            return new MAggregateCursor(m_collection.aggregate(requireNonNull(pipeline.list())));
+            return new MAggregateCursor(m_collection.aggregate(requireNonNull(pipeline.pipeline())));
         }
 
         public final void drop()
@@ -475,30 +515,19 @@ public final class MongoDB implements ICoreCommon
             return (m_collection.deleteOne(requireNonNull(query)).getDeletedCount() == 1L);
         }
 
-        public final Map<String, ?> ensureHasID(final Map<String, ?> update)
-        {
-            final Object id = update.get("id");
-
-            if ((false == (id instanceof String)) || (null == toTrimOrNull(id.toString())))
-            {
-                CAST_MAP(update).put("id", (new ObjectId()).toString());
-            }
-            return update;
-        }
-
         public final Map<String, ?> insertOne(final Map<String, ?> record)
         {
             if (isCreateID())
             {
-                final Map<String, ?> withid = ensureHasID(requireNonNull(record));
+                final Map<String, ?> withid = ENSUREID(requireNonNull(record));
 
-                m_collection.insertOne(new Document(CAST_MAP(withid)));
+                m_collection.insertOne(DOCUMENT(withid));
 
                 return withid;
             }
             else
             {
-                m_collection.insertOne(new Document(CAST_MAP(record)));
+                m_collection.insertOne(DOCUMENT(record));
 
                 return record;
             }
@@ -508,7 +537,7 @@ public final class MongoDB implements ICoreCommon
         {
             if (list.isEmpty())
             {
-                logger.warn("MCollection.insertMany(empty)");
+                logger().warn("MCollection.insertMany(empty)");
 
                 return this;
             }
@@ -524,14 +553,14 @@ public final class MongoDB implements ICoreCommon
             {
                 for (final Map<String, ?> lmap : list)
                 {
-                    save.add(new Document(CAST_MAP(ensureHasID(lmap))));
+                    save.add(DOCUMENT(ENSUREID(lmap)));
                 }
             }
             else
             {
                 for (final Map<String, ?> lmap : list)
                 {
-                    save.add(new Document(CAST_MAP(ensureHasID(lmap))));
+                    save.add(DOCUMENT(ENSUREID(lmap)));
                 }
             }
             m_collection.insertMany(save);
@@ -686,22 +715,22 @@ public final class MongoDB implements ICoreCommon
             {
                 if (upsert)
                 {
-                    m_collection.updateMany(requireNonNull(query), new Document(CAST_MAP(update)), UPSERT_T);
+                    m_collection.updateMany(requireNonNull(query), DOCUMENT(update), UPSERT_OPTIONS_TRUE);
                 }
                 else
                 {
-                    m_collection.updateMany(requireNonNull(query), new Document(CAST_MAP(update)));
+                    m_collection.updateMany(requireNonNull(query), DOCUMENT(update));
                 }
             }
             else
             {
                 if (upsert)
                 {
-                    m_collection.updateOne(requireNonNull(query), new Document(CAST_MAP(update)), UPSERT_T);
+                    m_collection.updateOne(requireNonNull(query), DOCUMENT(update), UPSERT_OPTIONS_TRUE);
                 }
                 else
                 {
-                    m_collection.updateOne(requireNonNull(query), new Document(CAST_MAP(update)));
+                    m_collection.updateOne(requireNonNull(query), DOCUMENT(update));
                 }
             }
             return update;
@@ -730,12 +759,12 @@ public final class MongoDB implements ICoreCommon
 
         public final Optional<Map<String, ?>> findOneOptional(final Map<String, ?> query)
         {
-            return Optional.ofNullable(findOne(new MQuery(query)));
+            return CommonOps.toOptional(findOne(new MQuery(query)));
         }
 
         public final Optional<Map<String, ?>> findOneOptional(final MQuery query)
         {
-            return Optional.ofNullable(findOne(query));
+            return CommonOps.toOptional(findOne(query));
         }
 
         public final boolean updateOne(final Map<String, ?> query, final Map<String, ?> update)
@@ -745,7 +774,7 @@ public final class MongoDB implements ICoreCommon
 
         public final boolean updateOne(final MQuery query, final Map<String, ?> update)
         {
-            return (m_collection.updateOne(requireNonNull(query), new Document(CAST_MAP(update))).getModifiedCount() == 1L);
+            return (m_collection.updateOne(requireNonNull(query), DOCUMENT(update)).getModifiedCount() == 1L);
         }
 
         public final long updateMany(final Map<String, ?> query, final Map<String, ?> update)
@@ -755,7 +784,7 @@ public final class MongoDB implements ICoreCommon
 
         public final long updateMany(final MQuery query, final Map<String, ?> update)
         {
-            return m_collection.updateMany(requireNonNull(query), new Document(CAST_MAP(update))).getModifiedCount();
+            return m_collection.updateMany(requireNonNull(query), DOCUMENT(update)).getModifiedCount();
         }
 
         public final List<?> distinct(final String field)
@@ -765,23 +794,24 @@ public final class MongoDB implements ICoreCommon
 
         public final List<?> distinct(final String field, final Map<String, ?> query)
         {
-            return m_collection.distinct(requireTrimOrNull(field), Document.class).filter(new Document(CAST_MAP(query))).into(arrayList());
+            return m_collection.distinct(requireTrimOrNull(field), Document.class).filter(DOCUMENT(query)).into(arrayList());
         }
     }
 
-    @SuppressWarnings("serial")
     private static class MAggregationOp extends Document
     {
+        private static final long serialVersionUID = 1L;
+
         private MAggregationOp(final Document doc)
         {
-            super(Objects.requireNonNull(doc));
+            super(CommonOps.requireNonNull(doc));
         }
 
         protected static final MAggregationOp makeAggregationOp(final String op, final Map<String, ?> map)
         {
             final LinkedHashMap<String, Object> make = new LinkedHashMap<String, Object>(1);
 
-            make.put(Objects.requireNonNull(op), Objects.requireNonNull(map));
+            make.put(CommonOps.requireNonNull(op), CommonOps.requireNonNull(map));
 
             return new MAggregationOp(new Document(make));
         }
@@ -790,84 +820,86 @@ public final class MongoDB implements ICoreCommon
         {
             final LinkedHashMap<String, Object> make = new LinkedHashMap<String, Object>(1);
 
-            make.put(Objects.requireNonNull(op), Objects.requireNonNull(doc));
+            make.put(CommonOps.requireNonNull(op), CommonOps.requireNonNull(doc));
 
             return new MAggregationOp(new Document(make));
         }
 
         public static final MAggregationMatch MATCH(final Map<String, ?> map)
         {
-            return new MAggregationMatch(Objects.requireNonNull(map));
+            return new MAggregationMatch(CommonOps.requireNonNull(map));
         }
 
         public static final MAggregationMatch MATCH(final Document doc)
         {
-            return new MAggregationMatch(Objects.requireNonNull(doc));
+            return new MAggregationMatch(CommonOps.requireNonNull(doc));
         }
 
         public static final MAggregationGroup GROUP(final Map<String, ?> map)
         {
-            return new MAggregationGroup(Objects.requireNonNull(map));
+            return new MAggregationGroup(CommonOps.requireNonNull(map));
         }
 
         public static final MAggregationGroup GROUP(final Document doc)
         {
-            return new MAggregationGroup(Objects.requireNonNull(doc));
+            return new MAggregationGroup(CommonOps.requireNonNull(doc));
         }
     }
 
     public static final class MAggregationGroup extends MAggregationOp
     {
-        private static final long serialVersionUID = 3079372174680166319L;
+        private static final long serialVersionUID = 1L;
 
         public MAggregationGroup(final Map<String, ?> map)
         {
-            super(makeAggregationOp("$group", Objects.requireNonNull(map)));
+            super(makeAggregationOp("$group", CommonOps.requireNonNull(map)));
         }
 
         public MAggregationGroup(final Document doc)
         {
-            super(makeAggregationOp("$group", Objects.requireNonNull(doc)));
+            super(makeAggregationOp("$group", CommonOps.requireNonNull(doc)));
         }
     }
 
     public static final class MAggregationMatch extends MAggregationOp
     {
-        private static final long serialVersionUID = -1138722876045817851L;
+        private static final long serialVersionUID = 1L;
 
         public MAggregationMatch(final Map<String, ?> map)
         {
-            super(makeAggregationOp("$match", Objects.requireNonNull(map)));
+            super(makeAggregationOp("$match", CommonOps.requireNonNull(map)));
         }
 
         public MAggregationMatch(final Document doc)
         {
-            super(makeAggregationOp("$match", Objects.requireNonNull(doc)));
+            super(makeAggregationOp("$match", CommonOps.requireNonNull(doc)));
         }
     }
 
-    public static final class MAggregationPipeline
+    public static final class MAggregationPipeline implements Serializable
     {
-        private final ArrayList<Document> m_pipeline = new ArrayList<Document>();
+        private static final long    serialVersionUID = 1L;
+
+        private final List<Document> m_pipeline;
 
         public <T extends Document> MAggregationPipeline(final List<T> list)
         {
-            m_pipeline.addAll(Objects.requireNonNull(list));
+            m_pipeline = CommonOps.toUnmodifiableList(new ArrayList<Document>(CommonOps.requireNonNull(list)));
         }
 
         @SafeVarargs
         public <T extends Document> MAggregationPipeline(final T... list)
         {
-            m_pipeline.addAll(Arrays.asList(Objects.requireNonNull(list)));
+            this(CommonOps.asList(CommonOps.requireNonNull(list)));
         }
 
-        List<Document> list()
+        public List<Document> pipeline()
         {
             return m_pipeline;
         }
     }
 
-    public static interface IMCursor extends Iterable<Map<String, ?>>, Iterator<Map<String, ?>>, Closeable
+    public static interface IMCursor extends Iterable<Map<String, ?>>, Iterator<Map<String, ?>>, Closeable, IHasLogging
     {
         public <A extends Collection<? super Map<String, ?>>> A into(A target);
     }
@@ -878,15 +910,23 @@ public final class MongoDB implements ICoreCommon
 
         private final MongoCursor<Document> m_cursor;
 
+        private final Logger                m_logger    = Logger.getLogger(getClass());
+
         private boolean                     m_closed    = false;
 
         private boolean                     m_autoclose = true;
 
         protected AbstractMCursor(final T iter)
         {
-            m_iterab = Objects.requireNonNull(iter);
+            m_iterab = CommonOps.requireNonNull(iter);
 
-            m_cursor = Objects.requireNonNull(m_iterab.iterator());
+            m_cursor = CommonOps.requireNonNull(m_iterab.iterator());
+        }
+
+        @Override
+        public Logger logger()
+        {
+            return m_logger;
         }
 
         protected final T self()
@@ -905,7 +945,7 @@ public final class MongoDB implements ICoreCommon
             }
             catch (final IOException e)
             {
-                logger.error("Error in AbstractMCursor.into() ", e);
+                logger().error("Error in AbstractMCursor.into() ", e);
             }
             return result;
         }
@@ -929,7 +969,7 @@ public final class MongoDB implements ICoreCommon
                 }
                 catch (final Exception e)
                 {
-                    logger.error("Error in AbstractMCursor.close() ", e);
+                    logger().error("Error in AbstractMCursor.close() ", e);
                 }
             }
             return next;
@@ -989,7 +1029,7 @@ public final class MongoDB implements ICoreCommon
 
         public MCursor projection(final MProjection projection)
         {
-            return new MCursor(self().projection(Objects.requireNonNull(projection)));
+            return new MCursor(self().projection(CommonOps.requireNonNull(projection)));
         }
 
         public MCursor skip(final int skip)
@@ -1009,16 +1049,15 @@ public final class MongoDB implements ICoreCommon
 
         public MCursor sort(final MSort sort)
         {
-            return new MCursor(self().sort(Objects.requireNonNull(sort)));
+            return new MCursor(self().sort(CommonOps.requireNonNull(sort)));
         }
     }
 
-    @SuppressWarnings("serial")
     public static final class MSort extends Document
     {
-        private static final BsonInt32 ORDER_A = new BsonInt32(0 + 1);
+        private static final long   serialVersionUID = 1L;
 
-        private static final BsonInt32 ORDER_D = new BsonInt32(0 - 1);
+        private static final Logger m_logger         = Logger.getLogger(MSort.class);
 
         private MSort()
         {
@@ -1026,37 +1065,37 @@ public final class MongoDB implements ICoreCommon
 
         public MSort(final Map<String, ?> map)
         {
-            super(CAST_MAP(map));
+            super(CommonOps.CAST_STR_MAP(map));
         }
 
         public static final MSort ASCENDING(final String... fields)
         {
-            return ASCENDING(Arrays.asList(fields));
+            return ASCENDING(CommonOps.asList(fields));
         }
 
         public static final MSort ASCENDING(final List<String> fields)
         {
-            return ORDER_BY(Objects.requireNonNull(fields), ORDER_A);
+            return ORDER_BY(CommonOps.requireNonNull(fields), ORDER_A);
         }
 
         public static final MSort DESCENDING(final String... fields)
         {
-            return DESCENDING(Arrays.asList(fields));
+            return DESCENDING(CommonOps.asList(fields));
         }
 
         public static final MSort DESCENDING(final List<String> fields)
         {
-            return ORDER_BY(Objects.requireNonNull(fields), ORDER_D);
+            return ORDER_BY(CommonOps.requireNonNull(fields), ORDER_D);
         }
 
         public static final MSort ORDER_BY(final MSort... sorts)
         {
-            return ORDER_BY(Arrays.asList(sorts));
+            return ORDER_BY(CommonOps.asList(sorts));
         }
 
         public static final MSort ORDER_BY(final List<MSort> sorts)
         {
-            Objects.requireNonNull(sorts);
+            CommonOps.requireNonNull(sorts);
 
             final MSort sort = new MSort();
 
@@ -1064,18 +1103,19 @@ public final class MongoDB implements ICoreCommon
             {
                 if (null != s)
                 {
-                    s.forEach((k, v) -> {
+                    for (final String k : CommonOps.toKeys(s))
+                    {
                         if (null != StringOps.toTrimOrNull(k))
                         {
                             sort.remove(k);
 
                             sort.append(k, s.get(k));
                         }
-                    });
+                    }
                 }
                 else
                 {
-                    logger.warn("MSort.ORDER_BY(null)");
+                    m_logger.warn("MSort.ORDER_BY(null)");
                 }
             }
             return sort;
@@ -1083,7 +1123,7 @@ public final class MongoDB implements ICoreCommon
 
         private static final MSort ORDER_BY(final List<String> fields, final BsonInt32 value)
         {
-            Objects.requireNonNull(fields);
+            CommonOps.requireNonNull(fields);
 
             final MSort sort = new MSort();
 
@@ -1100,12 +1140,9 @@ public final class MongoDB implements ICoreCommon
         }
     }
 
-    @SuppressWarnings("serial")
     public static final class MProjection extends Document
     {
-        private static final BsonInt32 INCLUDE_N = new BsonInt32(0);
-
-        private static final BsonInt32 INCLUDE_Y = new BsonInt32(1);
+        private static final long serialVersionUID = 1L;
 
         private MProjection()
         {
@@ -1113,7 +1150,7 @@ public final class MongoDB implements ICoreCommon
 
         public MProjection(final Map<String, ?> map)
         {
-            super(CAST_MAP(map));
+            super(CommonOps.CAST_STR_MAP(map));
         }
 
         private MProjection(final String name, final BsonValue value)
@@ -1123,32 +1160,32 @@ public final class MongoDB implements ICoreCommon
 
         public static final MProjection INCLUDE(final String... fields)
         {
-            return INCLUDE(Arrays.asList(fields));
+            return INCLUDE(CommonOps.asList(fields));
         }
 
         public static final MProjection INCLUDE(final List<String> fields)
         {
-            return COMBINE(Objects.requireNonNull(fields), INCLUDE_Y);
+            return COMBINE(CommonOps.requireNonNull(fields), INCLUDE_Y);
         }
 
         public static final MProjection EXCLUDE(final String... fields)
         {
-            return EXCLUDE(Arrays.asList(fields));
+            return EXCLUDE(CommonOps.asList(fields));
         }
 
         public static final MProjection EXCLUDE(final List<String> fields)
         {
-            return COMBINE(Objects.requireNonNull(fields), INCLUDE_N);
+            return COMBINE(CommonOps.requireNonNull(fields), INCLUDE_N);
         }
 
         public static final MProjection NO_ID()
         {
-            return new MProjection("_id", INCLUDE_N);
+            return new MProjection(MONGODB_ID_KEY, INCLUDE_N);
         }
 
         public static final MProjection FIELDS(final MProjection... projections)
         {
-            return FIELDS(Arrays.asList(projections));
+            return FIELDS(CommonOps.asList(projections));
         }
 
         public static final MProjection FIELDS(final List<MProjection> projections)
@@ -1157,7 +1194,7 @@ public final class MongoDB implements ICoreCommon
 
             for (final MProjection p : projections)
             {
-                for (String k : p.keySet())
+                for (String k : CommonOps.toKeys(p))
                 {
                     if (null != (k = StringOps.toTrimOrNull(k)))
                     {
@@ -1187,16 +1224,17 @@ public final class MongoDB implements ICoreCommon
         }
     }
 
-    @SuppressWarnings("serial")
     public static class MQuery extends Document
     {
+        private static final long serialVersionUID = 1L;
+
         private MQuery()
         {
         }
 
         public MQuery(final Map<String, ?> map)
         {
-            super(CAST_MAP(map));
+            super(CommonOps.CAST_STR_MAP(map));
         }
 
         public static final MQuery QUERY(final Map<String, ?> map)
@@ -1237,48 +1275,58 @@ public final class MongoDB implements ICoreCommon
         @SafeVarargs
         public static final <T> MQuery IN(final String name, final T... list)
         {
-            return IN(StringOps.requireTrimOrNull(name), Arrays.asList(list));
+            return IN(StringOps.requireTrimOrNull(name), CommonOps.asList(list));
         }
 
         public static final <T> MQuery IN(final String name, final List<T> list)
         {
-            return convert(in(StringOps.requireTrimOrNull(name), Objects.requireNonNull(list)));
+            return convert(in(StringOps.requireTrimOrNull(name), CommonOps.requireNonNull(list)));
         }
 
         @SafeVarargs
         public static final <T> MQuery NIN(final String name, final T... list)
         {
-            return NIN(StringOps.requireTrimOrNull(name), Arrays.asList(list));
+            return NIN(StringOps.requireTrimOrNull(name), CommonOps.asList(list));
         }
 
         public static final <T> MQuery NIN(final String name, final List<T> list)
         {
-            return convert(nin(StringOps.requireTrimOrNull(name), Objects.requireNonNull(list)));
+            return convert(nin(StringOps.requireTrimOrNull(name), CommonOps.requireNonNull(list)));
         }
 
         public static final MQuery AND(final MQuery... list)
         {
-            return AND(Arrays.asList(list));
+            return AND(CommonOps.asList(list));
         }
 
         public static final MQuery AND(final List<MQuery> list)
         {
-            return convert(and(new ArrayList<Bson>(Objects.requireNonNull(list))));
+            return convert(and(new ArrayList<Bson>(CommonOps.requireNonNull(list))));
         }
 
         public static final MQuery OR(final MQuery... list)
         {
-            return OR(Arrays.asList(list));
+            return OR(CommonOps.asList(list));
         }
 
         public static final MQuery OR(final List<MQuery> list)
         {
-            return convert(or(new ArrayList<Bson>(Objects.requireNonNull(list))));
+            return convert(or(new ArrayList<Bson>(CommonOps.requireNonNull(list))));
+        }
+
+        public static final MQuery NOR(final MQuery... list)
+        {
+            return NOR(CommonOps.asList(list));
+        }
+
+        public static final MQuery NOR(final List<MQuery> list)
+        {
+            return convert(nor(new ArrayList<Bson>(CommonOps.requireNonNull(list))));
         }
 
         public static final MQuery NOT(final MQuery query)
         {
-            return convert(not(Objects.requireNonNull(query)));
+            return convert(not(CommonOps.requireNonNull(query)));
         }
 
         public static final MQuery EXISTS(final String name, final boolean exists)
@@ -1291,14 +1339,25 @@ public final class MongoDB implements ICoreCommon
             return convert(exists(StringOps.requireTrimOrNull(name), true));
         }
 
-        private static final MQuery convert(final Bson b)
+        public static final MQuery REGEX(final String name, final String pattern)
+        {
+            return convert(regex(StringOps.requireTrimOrNull(name), CommonOps.requireNonNull(pattern)));
+        }
+
+        public static final MQuery REGEX(final String name, final Pattern pattern)
+        {
+            return convert(regex(StringOps.requireTrimOrNull(name), CommonOps.requireNonNull(pattern)));
+        }
+
+        @SuppressWarnings("serial")
+        private static final MQuery convert(final Bson bson)
         {
             return new MQuery()
             {
                 @Override
-                public <TDocument> BsonDocument toBsonDocument(final Class<TDocument> documentClass, final CodecRegistry codecRegistry)
+                public <TDocument> BsonDocument toBsonDocument(final Class<TDocument> type, final CodecRegistry codec)
                 {
-                    return b.toBsonDocument(documentClass, codecRegistry);
+                    return bson.toBsonDocument(type, codec);
                 }
             };
         }

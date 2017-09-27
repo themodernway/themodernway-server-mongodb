@@ -16,8 +16,7 @@
 
 package com.themodernway.server.mongodb.support.spring;
 
-import java.util.Objects;
-
+import com.themodernway.common.api.java.util.CommonOps;
 import com.themodernway.server.core.support.spring.ServerContextInstance;
 
 public class MongoDBContextInstance extends ServerContextInstance implements IMongoDBContext
@@ -36,6 +35,6 @@ public class MongoDBContextInstance extends ServerContextInstance implements IMo
     @Override
     public final IMongoDBProvider getMongoDBProvider()
     {
-        return Objects.requireNonNull(getBeanSafely("MongoDBProvider", IMongoDBProvider.class), "MongoDBProvider is null, initialization error.");
+        return CommonOps.requireNonNull(getBeanSafely("MongoDBProvider", IMongoDBProvider.class), "MongoDBProvider is null, initialization error.");
     }
 }

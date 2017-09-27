@@ -16,7 +16,10 @@
 
 package com.themodernway.server.mongodb.support
 
+import java.util.regex.Pattern
+
 import com.themodernway.common.api.java.util.StringOps
+import com.themodernway.server.core.json.JSONArray
 import com.themodernway.server.core.json.JSONObject
 import com.themodernway.server.mongodb.MongoDB
 import com.themodernway.server.mongodb.MongoDB.IMCursor
@@ -91,15 +94,19 @@ public trait MongoDBTrait
         getMongoDBProvider().getMongoDBDefaultDescriptorName()
     }
 
+    public JSONArray jarr(IMCursor cursor)
+    {
+        new JSONArray(cursor.into([]))
+    }
+
     public JSONObject json(IMCursor cursor)
     {
-        List list = []
+        new JSONObject(cursor.into([]))
+    }
 
-        for (Map map: cursor)
-        {
-            list << map
-        }
-        new JSONObject(list)
+    public JSONObject json(String name, IMCursor cursor)
+    {
+        new JSONObject(name, cursor.into([]))
     }
 
     public Map INC(Map args)
@@ -300,6 +307,16 @@ public trait MongoDBTrait
         MQuery.OR(queries)
     }
 
+    public MQuery NOR(MQuery... queries)
+    {
+        MQuery.NOR(queries)
+    }
+
+    public MQuery NOR(List<MQuery> queries)
+    {
+        MQuery.NOR(queries)
+    }
+
     public MQuery EXISTS(String name, boolean exists)
     {
         MQuery.EXISTS(name, exists)
@@ -308,6 +325,16 @@ public trait MongoDBTrait
     public MQuery EXISTS(String name)
     {
         MQuery.EXISTS(name)
+    }
+
+    public MQuery REGEX(String name, String pattern)
+    {
+        MQuery.REGEX(name, pattern)
+    }
+
+    public MQuery REGEX(String name, Pattern pattern)
+    {
+        MQuery.REGEX(name, pattern)
     }
 
     public MAggregationMatch MATCH(Map map)

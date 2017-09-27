@@ -18,15 +18,14 @@ package com.themodernway.server.mongodb.support.spring;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 import com.mongodb.MongoClientOptions;
 import com.mongodb.MongoCredential;
 import com.mongodb.ServerAddress;
+import com.themodernway.common.api.java.util.CommonOps;
 import com.themodernway.common.api.java.util.StringOps;
 import com.themodernway.common.api.types.Activatable;
 import com.themodernway.server.core.support.spring.IPropertiesResolver;
@@ -226,7 +225,7 @@ public class MongoDBDescriptor extends Activatable implements IMongoDBDescriptor
 
     private final void setName(final String name)
     {
-        m_name = Objects.requireNonNull(StringOps.toTrimOrNull(name), "MongoDBDescriptor name is null or empty");
+        m_name = CommonOps.requireNonNull(StringOps.toTrimOrNull(name), "MongoDBDescriptor name is null or empty");
     }
 
     @Override
@@ -280,13 +279,13 @@ public class MongoDBDescriptor extends Activatable implements IMongoDBDescriptor
 
     public void setDefaultDB(final String name)
     {
-        m_defaultd = Objects.requireNonNull(StringOps.toTrimOrNull(name), "DefaultDB is null or empty");
+        m_defaultd = CommonOps.requireNonNull(StringOps.toTrimOrNull(name), "DefaultDB is null or empty");
     }
 
     @Override
     public List<MongoCredential> getCredentials()
     {
-        return Collections.unmodifiableList(m_authlist);
+        return CommonOps.toUnmodifiableList(m_authlist);
     }
 
     @Override
@@ -303,12 +302,12 @@ public class MongoDBDescriptor extends Activatable implements IMongoDBDescriptor
     @Override
     public List<ServerAddress> getAddresses()
     {
-        return Collections.unmodifiableList(m_addrlist);
+        return CommonOps.toUnmodifiableList(m_addrlist);
     }
 
     public void setClientOptions(final MongoClientOptions coptions)
     {
-        m_coptions = Objects.requireNonNull(coptions);
+        m_coptions = CommonOps.requireNonNull(coptions);
     }
 
     @Override
@@ -320,6 +319,6 @@ public class MongoDBDescriptor extends Activatable implements IMongoDBDescriptor
     @Override
     public Map<String, IMongoDBOptions> getDBOptions()
     {
-        return Collections.unmodifiableMap(m_doptions);
+        return CommonOps.toUnmodifiableMap(m_doptions);
     }
 }

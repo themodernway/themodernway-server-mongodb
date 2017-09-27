@@ -18,8 +18,8 @@ package com.themodernway.server.mongodb.support.spring;
 
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Objects;
 
+import com.themodernway.common.api.java.util.CommonOps;
 import com.themodernway.common.api.java.util.StringOps;
 
 public class MongoDBOptions implements IMongoDBOptions
@@ -36,7 +36,7 @@ public class MongoDBOptions implements IMongoDBOptions
 
         m_name = StringOps.requireTrimOrNull(name);
 
-        for (final IMongoDBCollectionOptions opts : Objects.requireNonNull(list))
+        for (final IMongoDBCollectionOptions opts : CommonOps.requireNonNull(list))
         {
             final String coll = StringOps.requireTrimOrNull(opts.getName());
 
