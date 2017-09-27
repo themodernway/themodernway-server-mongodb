@@ -41,7 +41,6 @@ import static com.themodernway.server.mongodb.IMongoConstants.UPSERT_OPTIONS_TRU
 
 import java.io.Closeable;
 import java.io.IOException;
-import java.io.Serializable;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -86,11 +85,9 @@ import com.themodernway.server.core.logging.IHasLogging;
 import com.themodernway.server.mongodb.support.spring.IMongoDBCollectionOptions;
 import com.themodernway.server.mongodb.support.spring.IMongoDBOptions;
 
-public final class MongoDB implements ICoreCommon, Serializable
+public final class MongoDB implements ICoreCommon
 {
-    private static final long                  serialVersionUID = 1L;
-
-    private static final Logger                m_logger         = Logger.getLogger(MongoDB.class);
+    private static final Logger                m_logger = Logger.getLogger(MongoDB.class);
 
     private final MongoClient                  m_mongo;
 
@@ -219,17 +216,15 @@ public final class MongoDB implements ICoreCommon, Serializable
         return new MDatabase(m_mongo.getDatabase(name), id, op);
     }
 
-    public static final class MDatabase implements ICoreCommon, INamed, Serializable
+    public static final class MDatabase implements ICoreCommon, INamed
     {
-        private static final long     serialVersionUID = 1L;
-
         private final MongoDatabase   m_db;
 
         private final IMongoDBOptions m_op;
 
         private final boolean         m_id;
 
-        private static final Logger   m_logger         = Logger.getLogger(MDatabase.class);
+        private static final Logger   m_logger = Logger.getLogger(MDatabase.class);
 
         protected MDatabase(final MongoDatabase db, final boolean id, final IMongoDBOptions op) throws Exception
         {
@@ -311,17 +306,15 @@ public final class MongoDB implements ICoreCommon, Serializable
         }
     }
 
-    public static final class MCollectionPreferences implements IHasLogging, Serializable
+    public static final class MCollectionPreferences implements IHasLogging
     {
-        private static final long    serialVersionUID = 1L;
-
         private final WriteConcern   m_write;
 
         private final ReadPreference m_prefs;
 
         private final CodecRegistry  m_codec;
 
-        private static final Logger  m_logger         = Logger.getLogger(MCollectionPreferences.class);
+        private static final Logger  m_logger = Logger.getLogger(MCollectionPreferences.class);
 
         public MCollectionPreferences(final WriteConcern write, final ReadPreference prefs, final CodecRegistry codec)
         {
@@ -406,15 +399,13 @@ public final class MongoDB implements ICoreCommon, Serializable
         }
     }
 
-    public static final class MCollection implements ICoreCommon, INamed, Serializable
+    public static final class MCollection implements ICoreCommon, INamed
     {
-        private static final long               serialVersionUID = 1L;
-
         private final MongoCollection<Document> m_collection;
 
         private final boolean                   m_id;
 
-        private static final Logger             m_logger         = Logger.getLogger(MCollection.class);
+        private static final Logger             m_logger = Logger.getLogger(MCollection.class);
 
         protected MCollection(final MongoCollection<Document> collection, final boolean id)
         {
@@ -876,10 +867,8 @@ public final class MongoDB implements ICoreCommon, Serializable
         }
     }
 
-    public static final class MAggregationPipeline implements Serializable
+    public static final class MAggregationPipeline
     {
-        private static final long    serialVersionUID = 1L;
-
         private final List<Document> m_pipeline;
 
         public <T extends Document> MAggregationPipeline(final List<T> list)
