@@ -44,7 +44,7 @@ sourceCompatibility = 1.8
 
 targetCompatibility = 1.8
 
-version = '1.2.3-RELEASE'
+version = '1.2.4-RELEASE'
 
 group = 'com.themodernway'
 
@@ -235,7 +235,7 @@ tasks.withType(GroovyCompile) {
 }
 
 dependencies {
-    compile(group: 'com.themodernway', name: 'themodernway-server-core', version: '1.2.3-RELEASE')
+    compile(group: 'com.themodernway', name: 'themodernway-server-core', version: '1.2.4-RELEASE')
     compile(group: 'org.mongodb', name: 'mongodb-driver', version: '3.4.3')
     testCompile(group: 'log4j', name: 'log4j', version: '1.2.17')
     testCompile(group: 'log4j', name: 'apache-log4j-extras', version:'1.2.17')
