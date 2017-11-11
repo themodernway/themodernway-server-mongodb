@@ -58,7 +58,6 @@ import org.bson.BsonDocument;
 import org.bson.BsonInt32;
 import org.bson.BsonValue;
 import org.bson.Document;
-import org.bson.Transformer;
 import org.bson.codecs.configuration.CodecRegistry;
 import org.bson.conversions.Bson;
 
@@ -105,35 +104,25 @@ public final class MongoDB implements ICoreCommon
 
         m_usedb = requireTrimOrNull(usedb);
 
-        BSON.addEncodingHook(BigDecimal.class, new Transformer()
-        {
-            @Override
-            public Object transform(final Object object)
+        BSON.addEncodingHook(BigDecimal.class, object -> {
+            if (null == object)
             {
-                if (null == object)
-                {
-                    return null;
-                }
-                return JSONUtils.asDouble(object);
+                return null;
             }
+            return JSONUtils.asDouble(object);
         });
-        BSON.addEncodingHook(BigInteger.class, new Transformer()
-        {
-            @Override
-            public Object transform(final Object object)
+        BSON.addEncodingHook(BigInteger.class, object -> {
+            if (null == object)
             {
-                if (null == object)
-                {
-                    return null;
-                }
-                final Long lval = JSONUtils.asLong(object);
-
-                if (null != lval)
-                {
-                    return lval;
-                }
-                return JSONUtils.asInteger(object);
+                return null;
             }
+            final Long lval = JSONUtils.asLong(object);
+
+            if (null != lval)
+            {
+                return lval;
+            }
+            return JSONUtils.asInteger(object);
         });
         if (addr.isEmpty())
         {
@@ -190,7 +179,7 @@ public final class MongoDB implements ICoreCommon
 
     public List<String> getDatabaseNames()
     {
-        return toUnmodifiableList(toUniqueStringList(m_mongo.listDatabaseNames().into(arrayList())));
+        return toUnmodifiableList(toUnique(m_mongo.listDatabaseNames().into(arrayList())));
     }
 
     public final MDatabase db() throws Exception
@@ -264,7 +253,7 @@ public final class MongoDB implements ICoreCommon
 
         public final List<String> getCollectionNames()
         {
-            return toUnmodifiableList(toUniqueStringList(m_db.listCollectionNames().into(arrayList())));
+            return toUnmodifiableList(toUnique(m_db.listCollectionNames().into(arrayList())));
         }
 
         public final MCollection collection(String name) throws Exception
@@ -879,7 +868,7 @@ public final class MongoDB implements ICoreCommon
         @SafeVarargs
         public <T extends Document> MAggregationPipeline(final T... list)
         {
-            this(CommonOps.asList(CommonOps.requireNonNull(list)));
+            this(CommonOps.toList(CommonOps.requireNonNull(list)));
         }
 
         public List<Document> pipeline()
@@ -1059,7 +1048,7 @@ public final class MongoDB implements ICoreCommon
 
         public static final MSort ASCENDING(final String... fields)
         {
-            return ASCENDING(CommonOps.asList(fields));
+            return ASCENDING(CommonOps.toList(fields));
         }
 
         public static final MSort ASCENDING(final List<String> fields)
@@ -1069,7 +1058,7 @@ public final class MongoDB implements ICoreCommon
 
         public static final MSort DESCENDING(final String... fields)
         {
-            return DESCENDING(CommonOps.asList(fields));
+            return DESCENDING(CommonOps.toList(fields));
         }
 
         public static final MSort DESCENDING(final List<String> fields)
@@ -1079,7 +1068,7 @@ public final class MongoDB implements ICoreCommon
 
         public static final MSort ORDER_BY(final MSort... sorts)
         {
-            return ORDER_BY(CommonOps.asList(sorts));
+            return ORDER_BY(CommonOps.toList(sorts));
         }
 
         public static final MSort ORDER_BY(final List<MSort> sorts)
@@ -1149,7 +1138,7 @@ public final class MongoDB implements ICoreCommon
 
         public static final MProjection INCLUDE(final String... fields)
         {
-            return INCLUDE(CommonOps.asList(fields));
+            return INCLUDE(CommonOps.toList(fields));
         }
 
         public static final MProjection INCLUDE(final List<String> fields)
@@ -1159,7 +1148,7 @@ public final class MongoDB implements ICoreCommon
 
         public static final MProjection EXCLUDE(final String... fields)
         {
-            return EXCLUDE(CommonOps.asList(fields));
+            return EXCLUDE(CommonOps.toList(fields));
         }
 
         public static final MProjection EXCLUDE(final List<String> fields)
@@ -1174,7 +1163,7 @@ public final class MongoDB implements ICoreCommon
 
         public static final MProjection FIELDS(final MProjection... projections)
         {
-            return FIELDS(CommonOps.asList(projections));
+            return FIELDS(CommonOps.toList(projections));
         }
 
         public static final MProjection FIELDS(final List<MProjection> projections)
@@ -1264,7 +1253,7 @@ public final class MongoDB implements ICoreCommon
         @SafeVarargs
         public static final <T> MQuery IN(final String name, final T... list)
         {
-            return IN(StringOps.requireTrimOrNull(name), CommonOps.asList(list));
+            return IN(StringOps.requireTrimOrNull(name), CommonOps.toList(list));
         }
 
         public static final <T> MQuery IN(final String name, final List<T> list)
@@ -1275,7 +1264,7 @@ public final class MongoDB implements ICoreCommon
         @SafeVarargs
         public static final <T> MQuery NIN(final String name, final T... list)
         {
-            return NIN(StringOps.requireTrimOrNull(name), CommonOps.asList(list));
+            return NIN(StringOps.requireTrimOrNull(name), CommonOps.toList(list));
         }
 
         public static final <T> MQuery NIN(final String name, final List<T> list)
@@ -1285,7 +1274,7 @@ public final class MongoDB implements ICoreCommon
 
         public static final MQuery AND(final MQuery... list)
         {
-            return AND(CommonOps.asList(list));
+            return AND(CommonOps.toList(list));
         }
 
         public static final MQuery AND(final List<MQuery> list)
@@ -1295,7 +1284,7 @@ public final class MongoDB implements ICoreCommon
 
         public static final MQuery OR(final MQuery... list)
         {
-            return OR(CommonOps.asList(list));
+            return OR(CommonOps.toList(list));
         }
 
         public static final MQuery OR(final List<MQuery> list)
@@ -1305,7 +1294,7 @@ public final class MongoDB implements ICoreCommon
 
         public static final MQuery NOR(final MQuery... list)
         {
-            return NOR(CommonOps.asList(list));
+            return NOR(CommonOps.toList(list));
         }
 
         public static final MQuery NOR(final List<MQuery> list)
