@@ -17,7 +17,6 @@
 package com.themodernway.server.mongodb.support.spring;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 
@@ -73,13 +72,13 @@ public class MongoDBProvider implements BeanFactoryAware, IMongoDBProvider
     @ManagedAttribute(description = "Get IMongoDBDescriptor names.")
     public List<String> getMongoDBDescriptorNames()
     {
-        return CommonOps.toUnmodifiableList(new ArrayList<String>(m_descriptors.keySet()));
+        return CommonOps.toUnmodifiableList(m_descriptors.keySet());
     }
 
     @Override
     public List<IMongoDBDescriptor> getMongoDBDescriptors()
     {
-        return CommonOps.toUnmodifiableList(new ArrayList<IMongoDBDescriptor>(m_descriptors.values()));
+        return CommonOps.toUnmodifiableList(m_descriptors.values());
     }
 
     @Override

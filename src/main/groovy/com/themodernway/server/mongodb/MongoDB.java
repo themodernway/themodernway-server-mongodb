@@ -105,6 +105,7 @@ public final class MongoDB implements ICoreCommon
         m_usedb = requireTrimOrNull(usedb);
 
         BSON.addEncodingHook(BigDecimal.class, object -> {
+
             if (null == object)
             {
                 return null;
@@ -112,6 +113,7 @@ public final class MongoDB implements ICoreCommon
             return JSONUtils.asDouble(object);
         });
         BSON.addEncodingHook(BigInteger.class, object -> {
+
             if (null == object)
             {
                 return null;
@@ -1043,7 +1045,7 @@ public final class MongoDB implements ICoreCommon
 
         public MSort(final Map<String, ?> map)
         {
-            super(CommonOps.CAST_STR_MAP(map));
+            super(CommonOps.STRMAP(map));
         }
 
         public static final MSort ASCENDING(final String... fields)
@@ -1128,7 +1130,7 @@ public final class MongoDB implements ICoreCommon
 
         public MProjection(final Map<String, ?> map)
         {
-            super(CommonOps.CAST_STR_MAP(map));
+            super(CommonOps.STRMAP(map));
         }
 
         private MProjection(final String name, final BsonValue value)
@@ -1212,7 +1214,7 @@ public final class MongoDB implements ICoreCommon
 
         public MQuery(final Map<String, ?> map)
         {
-            super(CommonOps.CAST_STR_MAP(map));
+            super(CommonOps.STRMAP(map));
         }
 
         public static final MQuery QUERY(final Map<String, ?> map)
