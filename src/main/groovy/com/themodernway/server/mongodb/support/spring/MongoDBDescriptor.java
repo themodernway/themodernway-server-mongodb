@@ -34,19 +34,21 @@ import com.themodernway.server.mongodb.MongoDB;
 
 public class MongoDBDescriptor extends Activatable implements IMongoDBDescriptor
 {
+    private static final long                      serialVersionUID = 1L;
+
     private String                                 m_name;
 
     private MongoDB                                m_mongo_db;
 
-    private boolean                                m_createid = false;
+    private boolean                                m_createid       = false;
 
-    private boolean                                m_replicas = false;
+    private boolean                                m_replicas       = false;
 
-    private int                                    m_poolsize = 100;
+    private int                                    m_poolsize       = 100;
 
-    private int                                    m_multiple = 100;
+    private int                                    m_multiple       = 100;
 
-    private int                                    m_ctimeout = 10000;
+    private int                                    m_ctimeout       = 10000;
 
     private String                                 m_defaultd;
 
