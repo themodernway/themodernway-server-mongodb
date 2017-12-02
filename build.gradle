@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, The Modern Way. All rights reserved.
+ * Copyright (c) 2017, 2018, The Modern Way. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,7 +44,7 @@ sourceCompatibility = 1.8
 
 targetCompatibility = 1.8
 
-version = '1.2.15-RELEASE'
+version = '1.2.16-RELEASE'
 
 group = 'com.themodernway'
 
@@ -80,7 +80,7 @@ task doJavaDocs(type: Groovydoc) {
     classpath = sourceSets.main.runtimeClasspath
     destinationDir = file("${buildDir}/docs/javadoc")
     docTitle = "${getProjectCommonName()}"
-    footer = "<small><a href=\"${getBuildGITHomeURL()}\" target=\"_blank\">${getProjectCommonName()} - &copy; 2017</a> - <a href=\"${getBuildGITCommitHash()}\" target=\"_blank\">${getBuildModuleVersion()}</a> - <a href=\"mailto:deansjones@gmail.com\">Author: Dean S. Jones</a></small>"
+    footer = "<small><a href=\"${getBuildGITHomeURL()}\" target=\"_blank\">${getProjectCommonName()} - &copy; 2017, 2018</a> - <a href=\"${getBuildGITCommitHash()}\" target=\"_blank\">${getBuildModuleVersion()}</a> - <a href=\"mailto:deansjones@gmail.com\">Author: Dean S. Jones</a></small>"
     includes = ['com/themodernway/server/mongodb/**']
     getGroovydocLinks().each { name, list ->
         link(name, *list)
@@ -235,7 +235,7 @@ tasks.withType(GroovyCompile) {
 }
 
 dependencies {
-    compile(group: 'com.themodernway', name: 'themodernway-server-core', version: '1.2.15-RELEASE')
+    compile(group: 'com.themodernway', name: 'themodernway-server-core', version: '1.2.16-RELEASE')
     compile(group: 'org.mongodb', name: 'mongodb-driver', version: '3.4.3')
     testCompile(group: 'log4j', name: 'log4j', version: '1.2.17')
     testCompile(group: 'log4j', name: 'apache-log4j-extras', version:'1.2.17')

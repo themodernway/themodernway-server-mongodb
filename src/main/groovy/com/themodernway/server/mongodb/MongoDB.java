@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, The Modern Way. All rights reserved.
+ * Copyright (c) 2017, 2018, The Modern Way. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -542,7 +542,7 @@ public final class MongoDB implements ICoreCommon
             {
                 for (final Map<String, ?> lmap : list)
                 {
-                    save.add(DOCUMENT(ENSUREID(lmap)));
+                    save.add(DOCUMENT(lmap));
                 }
             }
             m_collection.insertMany(save);
