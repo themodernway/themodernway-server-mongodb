@@ -44,11 +44,11 @@ public class MongoDBDescriptor extends Activatable implements IMongoDBDescriptor
 
     private transient boolean                                m_replicas       = false;
 
-    private transient int                                    m_poolsize       = 100;
+    private int                                              m_poolsize       = 100;
 
-    private transient int                                    m_multiple       = 100;
+    private int                                              m_multiple       = 100;
 
-    private transient int                                    m_ctimeout       = 10000;
+    private int                                              m_ctimeout       = 10000;
 
     private transient String                                 m_defaultd;
 
