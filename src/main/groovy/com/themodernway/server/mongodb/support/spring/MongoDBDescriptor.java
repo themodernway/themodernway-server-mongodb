@@ -34,33 +34,31 @@ import com.themodernway.server.mongodb.MongoDB;
 
 public class MongoDBDescriptor extends Activatable implements IMongoDBDescriptor
 {
-    private static final long                                serialVersionUID = 1L;
+    private String                                 m_name;
 
-    private transient String                                 m_name;
+    private MongoDB                                m_mongo_db;
 
-    private transient MongoDB                                m_mongo_db;
+    private boolean                                m_createid = false;
 
-    private transient boolean                                m_createid       = false;
+    private boolean                                m_replicas = false;
 
-    private transient boolean                                m_replicas       = false;
+    private int                                    m_poolsize = 100;
 
-    private int                                              m_poolsize       = 100;
+    private int                                    m_multiple = 100;
 
-    private int                                              m_multiple       = 100;
+    private int                                    m_ctimeout = 10000;
 
-    private int                                              m_ctimeout       = 10000;
+    private String                                 m_defaultd;
 
-    private transient String                                 m_defaultd;
+    private MongoClientOptions                     m_coptions;
 
-    private transient MongoClientOptions                     m_coptions;
+    private ArrayList<ServerAddress>               m_addrlist;
 
-    private transient ArrayList<ServerAddress>               m_addrlist;
+    private ArrayList<MongoCredential>             m_authlist;
 
-    private transient ArrayList<MongoCredential>             m_authlist;
+    private LinkedHashMap<String, IMongoDBOptions> m_doptions;
 
-    private transient LinkedHashMap<String, IMongoDBOptions> m_doptions;
-
-    private transient String                                 m_baseprop;
+    private String                                 m_baseprop;
 
     public MongoDBDescriptor()
     {
