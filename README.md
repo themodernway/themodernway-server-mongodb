@@ -14,14 +14,14 @@ Maven:
 <dependency>
   <groupId>com.themodernway</groupId>
   <artifactId>themodernway-server-mongodb</artifactId>
-  <version>1.2.20-RELEASE</version>
+  <version>1.2.21-RELEASE</version>
 </dependency>
 ```
 Gradle:
 
 ```
 dependencies {
-    compile(group:'com.themodernway',name:'themodernway-server-mongodb',version:'1.2.20-RELEASE')
+    compile(group:'com.themodernway',name:'themodernway-server-mongodb',version:'1.2.21-RELEASE')
 }
 ```
 Javadoc URL:
@@ -39,6 +39,10 @@ http://docs.themodernway.com/documents/reports/themodernway-server-mongodb/pmd/m
 FindBugs URL:
 
 http://docs.themodernway.com/documents/reports/themodernway-server-mongodb/findbugs/main.html
+
+CVE Dependency Check URL:
+
+http://docs.themodernway.com/documents/reports/themodernway-server-mongodb/cve/dependency-check-report.html
 
 License:
 
