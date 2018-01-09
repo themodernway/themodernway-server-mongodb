@@ -14,14 +14,14 @@ Maven:
 <dependency>
   <groupId>com.themodernway</groupId>
   <artifactId>themodernway-server-mongodb</artifactId>
-  <version>1.2.24-RELEASE</version>
+  <version>1.2.25-RELEASE</version>
 </dependency>
 ```
 Gradle:
 
 ```
 dependencies {
-    compile(group:'com.themodernway',name:'themodernway-server-mongodb',version:'1.2.24-RELEASE')
+    compile(group:'com.themodernway',name:'themodernway-server-mongodb',version:'1.2.25-RELEASE')
 }
 ```
 Javadoc URL:
@@ -46,7 +46,7 @@ http://docs.themodernway.com/documents/reports/themodernway-server-mongodb/cve/d
 
 License:
 
-Copyright (c) 2017, 2018 The Modern Way. All rights reserved.
+Copyright (c) 2018 The Modern Way. All rights reserved.
 
 The Modern Way Server MongoDB is released under version 2.0 of the Apache License.
 
