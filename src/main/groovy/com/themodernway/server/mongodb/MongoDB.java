@@ -96,6 +96,7 @@ public final class MongoDB implements ICoreCommon
 
     private final Map<String, IMongoDBOptions> m_dbops;
 
+    @SuppressWarnings("deprecation")
     public MongoDB(final List<ServerAddress> addr, final List<MongoCredential> auth, final MongoClientOptions opts, final boolean repl, final String usedb, final boolean useid, final Map<String, IMongoDBOptions> dbops)
     {
         m_useid = useid;

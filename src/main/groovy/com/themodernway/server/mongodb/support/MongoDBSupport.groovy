@@ -18,7 +18,6 @@ package com.themodernway.server.mongodb.support
 
 import java.util.regex.Pattern
 
-import com.themodernway.common.api.java.util.StringOps
 import com.themodernway.server.core.json.JSONArray
 import com.themodernway.server.core.json.JSONObject
 import com.themodernway.server.core.support.CoreGroovySupport
@@ -69,18 +68,18 @@ public class MongoDBSupport extends CoreGroovySupport
     @Memoized
     public MCollection collection(String name) throws Exception
     {
-        db().collection(StringOps.requireTrimOrNull(name))
+        db().collection(requireTrimOrNull(name))
     }
 
     public MCollection collection(String name, MCollectionPreferences opts) throws Exception
     {
-        db().collection(StringOps.requireTrimOrNull(name), opts)
+        db().collection(requireTrimOrNull(name), opts)
     }
 
     @Memoized
     public MDatabase db(String name) throws Exception
     {
-        getMongoDB().db(StringOps.requireTrimOrNull(name))
+        getMongoDB().db(requireTrimOrNull(name))
     }
 
     @Memoized
@@ -98,7 +97,7 @@ public class MongoDBSupport extends CoreGroovySupport
     @Memoized
     public MongoDB getMongoDB(String name)
     {
-        getMongoDBProvider().getMongoDBDescriptor(StringOps.requireTrimOrNull(name)).getMongoDB()
+        getMongoDBProvider().getMongoDBDescriptor(requireTrimOrNull(name)).getMongoDB()
     }
 
     @Memoized
