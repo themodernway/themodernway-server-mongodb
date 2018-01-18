@@ -46,7 +46,7 @@ sourceCompatibility = 1.8
 
 targetCompatibility = 1.8
 
-version = '1.2.29-RELEASE'
+version = '1.2.30-RELEASE'
 
 group = 'com.themodernway'
 
@@ -230,6 +230,9 @@ jacocoTestReport {
 jacocoTestReport.dependsOn test
 
 test {
+    minHeapSize = '2048m'
+    maxHeapSize = '2048m'
+    testLogging.showStandardStreams = true
     jacoco {
         append = false
         destinationFile = file("${buildDir}/jacoco/testing.exec")
@@ -241,7 +244,7 @@ tasks.withType(GroovyCompile) {
 }
 
 dependencies {
-    compile(group: 'com.themodernway', name: 'themodernway-server-core', version: '1.2.29-RELEASE')
+    compile(group: 'com.themodernway', name: 'themodernway-server-core', version: '1.2.30-RELEASE')
     compile(group: 'org.mongodb', name: 'mongodb-driver', version: '3.6.1')
     testCompile(group: 'log4j', name: 'log4j', version: '1.2.17')
     testCompile(group: 'org.slf4j', name: 'slf4j-api', version: '1.7.25')
