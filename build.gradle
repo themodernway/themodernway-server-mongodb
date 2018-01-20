@@ -15,9 +15,7 @@
  */
 
 buildscript {
-    repositories {
-        mavenCentral()
-    }
+    repositories { mavenCentral() }
     dependencies {
         classpath(group: 'org.ajoberstar', name: 'grgit', version: '1.7.2')
         classpath(group: 'commons-codec', name: 'commons-codec', version: '1.11')
@@ -51,9 +49,7 @@ version = '1.2.30-RELEASE'
 group = 'com.themodernway'
 
 eclipse {
-    classpath {
-        downloadJavadoc = true
-    }
+    classpath { downloadJavadoc = true }
 }
 
 checkstyle {
@@ -83,7 +79,9 @@ task doJavaDocs(type: Groovydoc) {
     destinationDir = file("${buildDir}/docs/javadoc")
     docTitle = "${getProjectCommonName()}"
     footer = "<small><a href=\"${getBuildGITHomeURL()}\" target=\"_blank\">${getProjectCommonName()} - &copy; 2018</a> - <a href=\"${getBuildGITCommitHash()}\" target=\"_blank\">${getBuildModuleVersion()}</a> - <a href=\"mailto:deansjones@gmail.com\">Author: Dean S. Jones</a></small>"
-    includes = ['com/themodernway/server/mongodb/**']
+    includes = [
+        'com/themodernway/server/mongodb/**'
+    ]
     getGroovydocLinks().each { name, list ->
         link(name, *list)
     }
@@ -167,12 +165,10 @@ def String getBuildDate() {
 }
 
 def String getBuildServerHost() {
-    try
-    {
+    try {
         InetAddress.getLocalHost().getHostName()
     }
-    catch (Exception e)
-    {
+    catch (Exception e) {
         'localhost'
     }
 }
@@ -207,9 +203,7 @@ def String getBuildGITCommitMessage() {
 
 repositories {
     mavenCentral()
-    maven {
-        url "${sonatype_snapshotURL}"
-    }
+    maven { url "${sonatype_snapshotURL}" }
 }
 
 task codeCoverage { doLast { println ':codeCoverage-done' } }
@@ -259,9 +253,7 @@ artifacts {
     archives jar
 }
 
-signing {
-    sign configurations.archives
-}
+signing { sign configurations.archives }
 
 uploadArchives {
     repositories {

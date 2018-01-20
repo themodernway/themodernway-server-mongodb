@@ -731,7 +731,7 @@ public final class MongoDB implements ICoreCommon
 
         public final Map<String, ?> findOne(final MQuery query)
         {
-            final FindIterable<Document> iter = m_collection.find(requireNonNull(query)).limit(1).projection(MProjection.NO_ID());
+            final FindIterable<Document> iter = m_collection.find(requireNonNull(query)).limit(1).batchSize(1).projection(MProjection.NO_ID());
 
             if (null != iter)
             {
@@ -910,7 +910,7 @@ public final class MongoDB implements ICoreCommon
             return m_logger;
         }
 
-        protected final T self()
+        protected final T orig()
         {
             return m_iterab;
         }
@@ -1010,17 +1010,22 @@ public final class MongoDB implements ICoreCommon
 
         public MCursor projection(final MProjection projection)
         {
-            return new MCursor(self().projection(CommonOps.requireNonNull(projection)));
+            return new MCursor(orig().projection(CommonOps.requireNonNull(projection)));
         }
 
         public MCursor skip(final int skip)
         {
-            return new MCursor(self().skip(Math.max(0, skip)));
+            return new MCursor(orig().skip(Math.max(0, skip)));
         }
 
         public MCursor limit(final int limit)
         {
-            return new MCursor(self().limit(Math.max(0, limit)));
+            return new MCursor(orig().limit(Math.max(0, limit)));
+        }
+
+        public MCursor batch(final int size)
+        {
+            return new MCursor(orig().batchSize(size));
         }
 
         public MCursor sort(final Map<String, ?> sort)
@@ -1030,7 +1035,7 @@ public final class MongoDB implements ICoreCommon
 
         public MCursor sort(final MSort sort)
         {
-            return new MCursor(self().sort(CommonOps.requireNonNull(sort)));
+            return new MCursor(orig().sort(CommonOps.requireNonNull(sort)));
         }
     }
 
