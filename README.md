@@ -14,14 +14,14 @@ Maven:
 <dependency>
   <groupId>com.themodernway</groupId>
   <artifactId>themodernway-server-mongodb</artifactId>
-  <version>1.2.31-RELEASE</version>
+  <version>1.2.32-RELEASE</version>
 </dependency>
 ```
 Gradle:
 
 ```
 dependencies {
-    compile(group:'com.themodernway',name:'themodernway-server-mongodb',version:'1.2.31-RELEASE')
+    compile(group:'com.themodernway',name:'themodernway-server-mongodb',version:'1.2.32-RELEASE')
 }
 ```
 Javadoc URL:
