@@ -52,7 +52,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.regex.Pattern;
 
-import org.apache.log4j.Logger;
 import org.bson.BSON;
 import org.bson.BsonDocument;
 import org.bson.BsonInt32;
@@ -60,6 +59,7 @@ import org.bson.BsonValue;
 import org.bson.Document;
 import org.bson.codecs.configuration.CodecRegistry;
 import org.bson.conversions.Bson;
+import org.slf4j.Logger;
 
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientOptions;
@@ -81,12 +81,13 @@ import com.themodernway.common.api.types.INamed;
 import com.themodernway.server.core.ICoreCommon;
 import com.themodernway.server.core.json.JSONUtils;
 import com.themodernway.server.core.logging.IHasLogging;
+import com.themodernway.server.core.logging.LoggingOps;
 import com.themodernway.server.mongodb.support.spring.IMongoDBCollectionOptions;
 import com.themodernway.server.mongodb.support.spring.IMongoDBOptions;
 
 public final class MongoDB implements ICoreCommon
 {
-    private static final Logger                m_logger = Logger.getLogger(MongoDB.class);
+    private static final Logger                m_logger = LoggingOps.LOGGER(MongoDB.class);
 
     private final MongoClient                  m_mongo;
 
@@ -216,7 +217,7 @@ public final class MongoDB implements ICoreCommon
 
         private final boolean         m_id;
 
-        private static final Logger   m_logger = Logger.getLogger(MDatabase.class);
+        private static final Logger   m_logger = LoggingOps.LOGGER(MDatabase.class);
 
         protected MDatabase(final MongoDatabase db, final boolean id, final IMongoDBOptions op) throws Exception
         {
@@ -306,7 +307,7 @@ public final class MongoDB implements ICoreCommon
 
         private final CodecRegistry  m_codec;
 
-        private static final Logger  m_logger = Logger.getLogger(MCollectionPreferences.class);
+        private static final Logger  m_logger = LoggingOps.LOGGER(MCollectionPreferences.class);
 
         public MCollectionPreferences(final WriteConcern write, final ReadPreference prefs, final CodecRegistry codec)
         {
@@ -397,7 +398,7 @@ public final class MongoDB implements ICoreCommon
 
         private final boolean                   m_id;
 
-        private static final Logger             m_logger = Logger.getLogger(MCollection.class);
+        private static final Logger             m_logger = LoggingOps.LOGGER(MCollection.class);
 
         protected MCollection(final MongoCollection<Document> collection, final boolean id)
         {
@@ -891,7 +892,7 @@ public final class MongoDB implements ICoreCommon
 
         private final MongoCursor<Document> m_cursor;
 
-        private final Logger                m_logger    = Logger.getLogger(getClass());
+        private final Logger                m_logger    = LoggingOps.LOGGER(getClass());
 
         private boolean                     m_closed    = false;
 
@@ -1043,7 +1044,7 @@ public final class MongoDB implements ICoreCommon
     {
         private static final long   serialVersionUID = 1L;
 
-        private static final Logger m_logger         = Logger.getLogger(MSort.class);
+        private static final Logger m_logger         = LoggingOps.LOGGER(MSort.class);
 
         private MSort()
         {

@@ -20,7 +20,7 @@ import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
@@ -31,11 +31,12 @@ import org.springframework.jmx.export.annotation.ManagedResource;
 
 import com.themodernway.common.api.java.util.CommonOps;
 import com.themodernway.common.api.java.util.StringOps;
+import com.themodernway.server.core.logging.LoggingOps;
 
 @ManagedResource
 public class MongoDBProvider implements BeanFactoryAware, IMongoDBProvider
 {
-    private static final Logger                             logger        = Logger.getLogger(MongoDBProvider.class);
+    private static final Logger                             logger        = LoggingOps.LOGGER(MongoDBProvider.class);
 
     private final String                                    m_default_name;
 
