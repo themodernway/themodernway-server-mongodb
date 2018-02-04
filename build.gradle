@@ -44,7 +44,7 @@ sourceCompatibility = 1.8
 
 targetCompatibility = 1.8
 
-version = '2.0.0-RC1'
+version = '2.0.0-RC2'
 
 group = 'com.themodernway'
 
@@ -238,7 +238,7 @@ tasks.withType(GroovyCompile) {
 }
 
 dependencies {
-    compile(group: 'com.themodernway', name: 'themodernway-server-core', version: '2.0.0-RC1')
+    compile(group: 'com.themodernway', name: 'themodernway-server-core', version: '2.0.0-RC2')
     compile(group: 'org.mongodb', name: 'mongodb-driver', version: '3.6.2')
     testCompile(group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.3')
     testCompile(group: 'org.slf4j', name: 'slf4j-api', version: '1.7.25')
