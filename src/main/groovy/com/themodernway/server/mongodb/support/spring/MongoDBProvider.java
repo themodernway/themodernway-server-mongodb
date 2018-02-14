@@ -25,15 +25,11 @@ import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
-import org.springframework.jmx.export.annotation.ManagedAttribute;
-import org.springframework.jmx.export.annotation.ManagedOperation;
-import org.springframework.jmx.export.annotation.ManagedResource;
 
 import com.themodernway.common.api.java.util.CommonOps;
 import com.themodernway.common.api.java.util.StringOps;
 import com.themodernway.server.core.logging.LoggingOps;
 
-@ManagedResource
 public class MongoDBProvider implements BeanFactoryAware, IMongoDBProvider
 {
     private static final Logger                             logger        = LoggingOps.LOGGER(MongoDBProvider.class);
@@ -70,7 +66,6 @@ public class MongoDBProvider implements BeanFactoryAware, IMongoDBProvider
     }
 
     @Override
-    @ManagedAttribute(description = "Get IMongoDBDescriptor names.")
     public List<String> getMongoDBDescriptorNames()
     {
         return CommonOps.toUnmodifiableList(m_descriptors.keySet());
@@ -83,7 +78,6 @@ public class MongoDBProvider implements BeanFactoryAware, IMongoDBProvider
     }
 
     @Override
-    @ManagedOperation(description = "Close all MongoDB Descriptors")
     public void close() throws IOException
     {
         for (final IMongoDBDescriptor descriptor : m_descriptors.values())
