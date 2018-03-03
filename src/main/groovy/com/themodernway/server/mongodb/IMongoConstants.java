@@ -45,7 +45,7 @@ public interface IMongoConstants extends ICoreServletConstants
 
     public static Document DOCUMENT(final Map<String, ?> maps)
     {
-        return new Document(CommonOps.STRMAP(CommonOps.requireNonNull(maps)));
+        return new Document(CommonOps.strmap(CommonOps.requireNonNull(maps)));
     }
 
     public static Map<String, ?> ENSUREID(final Map<String, ?> update)
@@ -54,7 +54,7 @@ public interface IMongoConstants extends ICoreServletConstants
 
         if ((false == (id instanceof String)) || (null == StringOps.toTrimOrNull(id.toString())))
         {
-            CommonOps.STRMAP(update).put(ENSURES_ID_KEY, (new ObjectId()).toString());
+            CommonOps.strmap(update).put(ENSURES_ID_KEY, (new ObjectId()).toString());
         }
         return update;
     }

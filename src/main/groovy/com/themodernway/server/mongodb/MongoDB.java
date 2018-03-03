@@ -1052,7 +1052,7 @@ public final class MongoDB implements ICoreCommon
 
         public MSort(final Map<String, ?> map)
         {
-            super(CommonOps.STRMAP(map));
+            super(CommonOps.strmap(map));
         }
 
         public static final MSort ASCENDING(final String... fields)
@@ -1137,7 +1137,7 @@ public final class MongoDB implements ICoreCommon
 
         public MProjection(final Map<String, ?> map)
         {
-            super(CommonOps.STRMAP(map));
+            super(CommonOps.strmap(map));
         }
 
         private MProjection(final String name, final BsonValue value)
@@ -1221,7 +1221,7 @@ public final class MongoDB implements ICoreCommon
 
         public MQuery(final Map<String, ?> map)
         {
-            super(CommonOps.STRMAP(map));
+            super(CommonOps.strmap(map));
         }
 
         public static final MQuery QUERY(final Map<String, ?> map)
