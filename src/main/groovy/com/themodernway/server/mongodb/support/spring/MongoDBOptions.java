@@ -28,7 +28,7 @@ public class MongoDBOptions implements IMongoDBOptions
 
     private final String                                           m_name;
 
-    private final LinkedHashMap<String, IMongoDBCollectionOptions> m_opts = new LinkedHashMap<String, IMongoDBCollectionOptions>();
+    private final LinkedHashMap<String, IMongoDBCollectionOptions> m_opts = new LinkedHashMap<>();
 
     public MongoDBOptions(final String name, final boolean icid, final List<IMongoDBCollectionOptions> list)
     {
@@ -38,12 +38,7 @@ public class MongoDBOptions implements IMongoDBOptions
 
         for (final IMongoDBCollectionOptions opts : CommonOps.requireNonNull(list))
         {
-            final String coll = StringOps.requireTrimOrNull(opts.getName());
-
-            if (null == m_opts.get(coll))
-            {
-                m_opts.put(coll, opts);
-            }
+            m_opts.computeIfAbsent(opts.getName(), coll -> opts);
         }
     }
 

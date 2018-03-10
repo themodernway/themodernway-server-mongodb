@@ -96,7 +96,7 @@ public class MongoDBDescriptor extends Activatable implements IMongoDBDescriptor
 
         setCreateID(Boolean.valueOf(prop.getPropertyByName(m_baseprop + ".createid", "false")));
 
-        final ArrayList<ServerAddress> addrlist = new ArrayList<ServerAddress>();
+        final ArrayList<ServerAddress> addrlist = new ArrayList<>();
 
         for (String name : StringOps.requireTrimOrNull(prop.getPropertyByName(m_baseprop + ".host.list")).split(","))
         {
@@ -117,7 +117,7 @@ public class MongoDBDescriptor extends Activatable implements IMongoDBDescriptor
         }
         m_addrlist = addrlist;
 
-        m_authlist = new ArrayList<MongoCredential>();
+        m_authlist = new ArrayList<>();
 
         final String temp = StringOps.toTrimOrNull(prop.getPropertyByName(m_baseprop + ".auth.list"));
 
@@ -143,7 +143,7 @@ public class MongoDBDescriptor extends Activatable implements IMongoDBDescriptor
         {
             setClientOptions(MongoClientOptions.builder().connectionsPerHost(getConnectionPoolSize()).threadsAllowedToBlockForConnectionMultiplier(getConnectionMultiplier()).connectTimeout(getConnectionTimeout()).build());
         }
-        m_doptions = new LinkedHashMap<String, IMongoDBOptions>();
+        m_doptions = new LinkedHashMap<>();
 
         final String conf = StringOps.toTrimOrNull(prop.getPropertyByName(m_baseprop + ".dbconfig.list"));
 
@@ -157,7 +157,7 @@ public class MongoDBDescriptor extends Activatable implements IMongoDBDescriptor
                 {
                     boolean doid = isCreateID();
 
-                    final ArrayList<IMongoDBCollectionOptions> list = new ArrayList<IMongoDBCollectionOptions>();
+                    final ArrayList<IMongoDBCollectionOptions> list = new ArrayList<>();
 
                     final String dbid = StringOps.toTrimOrNull(prop.getPropertyByName(m_baseprop + ".dbconfig." + name + ".createid"));
 

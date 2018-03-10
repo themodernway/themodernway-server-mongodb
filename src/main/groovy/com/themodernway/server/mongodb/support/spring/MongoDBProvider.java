@@ -28,6 +28,7 @@ import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 
 import com.themodernway.common.api.java.util.CommonOps;
 import com.themodernway.common.api.java.util.StringOps;
+import com.themodernway.server.core.io.IO;
 import com.themodernway.server.core.logging.LoggingOps;
 
 public class MongoDBProvider implements BeanFactoryAware, IMongoDBProvider
@@ -38,7 +39,7 @@ public class MongoDBProvider implements BeanFactoryAware, IMongoDBProvider
 
     private final String                                    m_default_base;
 
-    private final LinkedHashMap<String, IMongoDBDescriptor> m_descriptors = new LinkedHashMap<String, IMongoDBDescriptor>();
+    private final LinkedHashMap<String, IMongoDBDescriptor> m_descriptors = new LinkedHashMap<>();
 
     public MongoDBProvider(final String default_base, final String default_name)
     {
@@ -80,19 +81,7 @@ public class MongoDBProvider implements BeanFactoryAware, IMongoDBProvider
     @Override
     public void close() throws IOException
     {
-        for (final IMongoDBDescriptor descriptor : m_descriptors.values())
-        {
-            try
-            {
-                logger.info("Closing MongoDB Descriptor " + descriptor.getName());
-
-                descriptor.close();
-            }
-            catch (final Exception e)
-            {
-                logger.error("Error closing MongoDB Descriptor " + descriptor.getName(), e);
-            }
-        }
+        IO.close(m_descriptors.values());
     }
 
     @Override
@@ -108,13 +97,15 @@ public class MongoDBProvider implements BeanFactoryAware, IMongoDBProvider
 
                 if (null == m_descriptors.get(name))
                 {
-                    logger.info("Adding IMongoDBDescriptor(" + name + ") class " + descriptor.getClass().getName());
-
+                    if (logger.isInfoEnabled())
+                    {
+                        logger.info(String.format("Adding IMongoDBDescriptor(%s) class (%s)", name, descriptor.getClass().getName()));
+                    }
                     m_descriptors.put(name, descriptor);
                 }
-                else
+                else if (logger.isErrorEnabled())
                 {
-                    logger.error("Duplicate IMongoDBDescriptor(" + name + ") class " + descriptor.getClass().getName());
+                    logger.error(String.format("Duplicate IMongoDBDescriptor(%s) class (%s)", name, descriptor.getClass().getName()));
                 }
             }
         }
