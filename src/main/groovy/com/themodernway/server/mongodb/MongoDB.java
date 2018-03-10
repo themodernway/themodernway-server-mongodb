@@ -358,7 +358,7 @@ public final class MongoDB implements ICoreCommon
             return new MCollection(withCodecRegistry(withReadPreference(withWriteConcern(collection, m_write), m_prefs), m_codec), id);
         }
 
-        private final static MongoCollection<Document> withWriteConcern(final MongoCollection<Document> collection, final WriteConcern write)
+        private static final MongoCollection<Document> withWriteConcern(final MongoCollection<Document> collection, final WriteConcern write)
         {
             if (null == write)
             {
@@ -367,7 +367,7 @@ public final class MongoDB implements ICoreCommon
             return collection.withWriteConcern(write);
         }
 
-        private final static MongoCollection<Document> withReadPreference(final MongoCollection<Document> collection, final ReadPreference prefs)
+        private static final MongoCollection<Document> withReadPreference(final MongoCollection<Document> collection, final ReadPreference prefs)
         {
             if (null == prefs)
             {
@@ -376,7 +376,7 @@ public final class MongoDB implements ICoreCommon
             return collection.withReadPreference(prefs);
         }
 
-        private final static MongoCollection<Document> withCodecRegistry(final MongoCollection<Document> collection, final CodecRegistry codec)
+        private static final MongoCollection<Document> withCodecRegistry(final MongoCollection<Document> collection, final CodecRegistry codec)
         {
             if (null == codec)
             {

@@ -54,24 +54,24 @@ public trait MongoDBTrait
     }
 
     @Memoized
-    public MCollection collection(String name) throws Exception
+    public MCollection collection(String name)
     {
         db().collection(StringOps.requireTrimOrNull(name))
     }
 
-    public MCollection collection(String name, MCollectionPreferences opts) throws Exception
+    public MCollection collection(String name, MCollectionPreferences opts)
     {
         db().collection(StringOps.requireTrimOrNull(name), opts)
     }
 
     @Memoized
-    public MDatabase db(String name) throws Exception
+    public MDatabase db(String name)
     {
         getMongoDB().db(StringOps.requireTrimOrNull(name))
     }
 
     @Memoized
-    public MDatabase db() throws Exception
+    public MDatabase db()
     {
         getMongoDB().db()
     }

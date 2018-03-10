@@ -66,24 +66,24 @@ public class MongoDBSupport extends CoreGroovySupport
     }
 
     @Memoized
-    public MCollection collection(String name) throws Exception
+    public MCollection collection(String name)
     {
         db().collection(requireTrimOrNull(name))
     }
 
-    public MCollection collection(String name, MCollectionPreferences opts) throws Exception
+    public MCollection collection(String name, MCollectionPreferences opts)
     {
         db().collection(requireTrimOrNull(name), opts)
     }
 
     @Memoized
-    public MDatabase db(String name) throws Exception
+    public MDatabase db(String name)
     {
         getMongoDB().db(requireTrimOrNull(name))
     }
 
     @Memoized
-    public MDatabase db() throws Exception
+    public MDatabase db()
     {
         getMongoDB().db()
     }
