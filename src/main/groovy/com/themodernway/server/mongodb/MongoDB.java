@@ -186,17 +186,17 @@ public final class MongoDB implements ICoreCommon
         return toUnmodifiableList(toUnique(m_mongo.listDatabaseNames().into(arrayList())));
     }
 
-    public final MDatabase db() throws Exception
+    public final MDatabase db()
     {
         return db(m_usedb);
     }
 
-    public final MDatabase db(final String name) throws Exception
+    public final MDatabase db(final String name)
     {
         return db(name, isAddingID());
     }
 
-    public final MDatabase db(String name, boolean id) throws Exception
+    public final MDatabase db(String name, boolean id)
     {
         name = requireTrimOrNull(name);
 
@@ -219,7 +219,7 @@ public final class MongoDB implements ICoreCommon
 
         private static final Logger   m_logger = LoggingOps.LOGGER(MDatabase.class);
 
-        protected MDatabase(final MongoDatabase db, final boolean id, final IMongoDBOptions op) throws Exception
+        protected MDatabase(final MongoDatabase db, final boolean id, final IMongoDBOptions op)
         {
             m_id = id;
 
@@ -260,7 +260,7 @@ public final class MongoDB implements ICoreCommon
             return toUnmodifiableList(toUnique(m_db.listCollectionNames().into(arrayList())));
         }
 
-        public final MCollection collection(String name) throws Exception
+        public final MCollection collection(String name)
         {
             name = requireTrimOrNull(name);
 
@@ -276,7 +276,7 @@ public final class MongoDB implements ICoreCommon
             return new MCollection(m_db.getCollection(name), isCreateID());
         }
 
-        public final MCollection collection(String name, final MCollectionPreferences opts) throws Exception
+        public final MCollection collection(String name, final MCollectionPreferences opts)
         {
             name = requireTrimOrNull(name);
 
@@ -572,12 +572,12 @@ public final class MongoDB implements ICoreCommon
             return m_collection.count(requireNonNull(query));
         }
 
-        public final MCursor find() throws Exception
+        public final MCursor find()
         {
             return find(false);
         }
 
-        public final MCursor find(final boolean with_id) throws Exception
+        public final MCursor find(final boolean with_id)
         {
             if (with_id)
             {
@@ -589,22 +589,22 @@ public final class MongoDB implements ICoreCommon
             }
         }
 
-        public final MCursor find(final Map<String, ?> query) throws Exception
+        public final MCursor find(final Map<String, ?> query)
         {
             return find(query, false);
         }
 
-        public final MCursor find(final MQuery query) throws Exception
+        public final MCursor find(final MQuery query)
         {
             return find(query, false);
         }
 
-        public final MCursor find(final Map<String, ?> query, final boolean with_id) throws Exception
+        public final MCursor find(final Map<String, ?> query, final boolean with_id)
         {
             return find(new MQuery(query), with_id);
         }
 
-        public final MCursor find(final MQuery query, final boolean with_id) throws Exception
+        public final MCursor find(final MQuery query, final boolean with_id)
         {
             if (with_id)
             {
@@ -616,37 +616,37 @@ public final class MongoDB implements ICoreCommon
             }
         }
 
-        public final MCursor find(final Map<String, ?> query, final Map<String, ?> fields) throws Exception
+        public final MCursor find(final Map<String, ?> query, final Map<String, ?> fields)
         {
             return find(new MQuery(query), new MProjection(fields));
         }
 
-        public final MCursor find(final MQuery query, final Map<String, ?> fields) throws Exception
+        public final MCursor find(final MQuery query, final Map<String, ?> fields)
         {
             return find(query, new MProjection(fields));
         }
 
-        public final MCursor find(final Map<String, ?> query, final MProjection fields) throws Exception
+        public final MCursor find(final Map<String, ?> query, final MProjection fields)
         {
             return find(new MQuery(query), requireNonNull(fields), false);
         }
 
-        public final MCursor find(final MQuery query, final MProjection fields) throws Exception
+        public final MCursor find(final MQuery query, final MProjection fields)
         {
             return find(query, requireNonNull(fields), false);
         }
 
-        public final MCursor find(final Map<String, ?> query, final Map<String, ?> fields, final boolean with_id) throws Exception
+        public final MCursor find(final Map<String, ?> query, final Map<String, ?> fields, final boolean with_id)
         {
             return find(new MQuery(query), new MProjection(fields), with_id);
         }
 
-        public final MCursor find(final Map<String, ?> query, final MProjection fields, final boolean with_id) throws Exception
+        public final MCursor find(final Map<String, ?> query, final MProjection fields, final boolean with_id)
         {
             return find(new MQuery(query), requireNonNull(fields), with_id);
         }
 
-        public final MCursor find(final MQuery query, final MProjection fields, final boolean with_id) throws Exception
+        public final MCursor find(final MQuery query, final MProjection fields, final boolean with_id)
         {
             if (with_id)
             {
@@ -793,7 +793,7 @@ public final class MongoDB implements ICoreCommon
 
         protected static final MAggregationOp makeAggregationOp(final String op, final Map<String, ?> map)
         {
-            final LinkedHashMap<String, Object> make = new LinkedHashMap<String, Object>(1);
+            final LinkedHashMap<String, Object> make = new LinkedHashMap<>(1);
 
             make.put(CommonOps.requireNonNull(op), CommonOps.requireNonNull(map));
 
@@ -802,7 +802,7 @@ public final class MongoDB implements ICoreCommon
 
         protected static final MAggregationOp makeAggregationOp(final String op, final Document doc)
         {
-            final LinkedHashMap<String, Object> make = new LinkedHashMap<String, Object>(1);
+            final LinkedHashMap<String, Object> make = new LinkedHashMap<>(1);
 
             make.put(CommonOps.requireNonNull(op), CommonOps.requireNonNull(doc));
 
@@ -886,7 +886,7 @@ public final class MongoDB implements ICoreCommon
         public <A extends Collection<? super Map<String, ?>>> A into(A target);
     }
 
-    protected static abstract class AbstractMCursor<T extends MongoIterable<Document>> implements IMCursor
+    protected abstract static class AbstractMCursor<T extends MongoIterable<Document>> implements IMCursor
     {
         private final T                     m_iterab;
 
