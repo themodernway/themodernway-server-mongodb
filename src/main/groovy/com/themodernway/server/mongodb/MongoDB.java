@@ -87,7 +87,7 @@ import com.themodernway.server.mongodb.support.spring.IMongoDBOptions;
 
 public final class MongoDB implements ICoreCommon
 {
-    private static final Logger                m_logger = LoggingOps.LOGGER(MongoDB.class);
+    private static final Logger                m_logger = LoggingOps.getLogger(MongoDB.class);
 
     private final MongoClient                  m_mongo;
 
@@ -217,7 +217,7 @@ public final class MongoDB implements ICoreCommon
 
         private final boolean         m_id;
 
-        private static final Logger   m_logger = LoggingOps.LOGGER(MDatabase.class);
+        private static final Logger   m_logger = LoggingOps.getLogger(MDatabase.class);
 
         protected MDatabase(final MongoDatabase db, final boolean id, final IMongoDBOptions op)
         {
@@ -307,7 +307,7 @@ public final class MongoDB implements ICoreCommon
 
         private final CodecRegistry  m_codec;
 
-        private static final Logger  m_logger = LoggingOps.LOGGER(MCollectionPreferences.class);
+        private static final Logger  m_logger = LoggingOps.getLogger(MCollectionPreferences.class);
 
         public MCollectionPreferences(final WriteConcern write, final ReadPreference prefs, final CodecRegistry codec)
         {
@@ -398,7 +398,7 @@ public final class MongoDB implements ICoreCommon
 
         private final boolean                   m_id;
 
-        private static final Logger             m_logger = LoggingOps.LOGGER(MCollection.class);
+        private static final Logger             m_logger = LoggingOps.getLogger(MCollection.class);
 
         protected MCollection(final MongoCollection<Document> collection, final boolean id)
         {
@@ -521,8 +521,10 @@ public final class MongoDB implements ICoreCommon
         {
             if (list.isEmpty())
             {
-                logger().warn("MCollection.insertMany(empty)");
-
+                if (logger().isWarnEnabled())
+                {
+                    logger().warn(LoggingOps.THE_MODERN_WAY_MARKER, "MCollection.insertMany(empty)");
+                }
                 return this;
             }
             if (1 == list.size())
@@ -892,7 +894,7 @@ public final class MongoDB implements ICoreCommon
 
         private final MongoCursor<Document> m_cursor;
 
-        private final Logger                m_logger    = LoggingOps.LOGGER(getClass());
+        private final Logger                m_logger    = LoggingOps.getLogger(getClass());
 
         private boolean                     m_closed    = false;
 
@@ -927,7 +929,10 @@ public final class MongoDB implements ICoreCommon
             }
             catch (final IOException e)
             {
-                logger().error("Error in AbstractMCursor.into() ", e);
+                if (logger().isErrorEnabled())
+                {
+                    logger().error(LoggingOps.THE_MODERN_WAY_MARKER, "Error in AbstractMCursor.into() ", e);
+                }
             }
             return result;
         }
@@ -951,7 +956,10 @@ public final class MongoDB implements ICoreCommon
                 }
                 catch (final Exception e)
                 {
-                    logger().error("Error in AbstractMCursor.close() ", e);
+                    if (logger().isErrorEnabled())
+                    {
+                        logger().error(LoggingOps.THE_MODERN_WAY_MARKER, "Error in AbstractMCursor.close() ", e);
+                    }
                 }
             }
             return next;
@@ -1044,7 +1052,7 @@ public final class MongoDB implements ICoreCommon
     {
         private static final long   serialVersionUID = 1L;
 
-        private static final Logger m_logger         = LoggingOps.LOGGER(MSort.class);
+        private static final Logger m_logger         = LoggingOps.getLogger(MSort.class);
 
         private MSort()
         {
@@ -1100,9 +1108,9 @@ public final class MongoDB implements ICoreCommon
                         }
                     }
                 }
-                else
+                else if (m_logger.isWarnEnabled())
                 {
-                    m_logger.warn("MSort.ORDER_BY(null)");
+                    m_logger.warn(LoggingOps.THE_MODERN_WAY_MARKER, "MSort.ORDER_BY(null)");
                 }
             }
             return sort;

@@ -33,7 +33,7 @@ import com.themodernway.server.core.logging.LoggingOps;
 
 public class MongoDBProvider implements BeanFactoryAware, IMongoDBProvider
 {
-    private static final Logger                             logger        = LoggingOps.LOGGER(MongoDBProvider.class);
+    private static final Logger                             logger        = LoggingOps.getLogger(MongoDBProvider.class);
 
     private final String                                    m_default_name;
 
@@ -99,13 +99,13 @@ public class MongoDBProvider implements BeanFactoryAware, IMongoDBProvider
                 {
                     if (logger.isInfoEnabled())
                     {
-                        logger.info(String.format("Adding IMongoDBDescriptor(%s) class (%s)", name, descriptor.getClass().getName()));
+                        logger.info(LoggingOps.THE_MODERN_WAY_MARKER, String.format("Adding IMongoDBDescriptor(%s) class (%s)", name, descriptor.getClass().getName()));
                     }
                     m_descriptors.put(name, descriptor);
                 }
                 else if (logger.isErrorEnabled())
                 {
-                    logger.error(String.format("Duplicate IMongoDBDescriptor(%s) class (%s)", name, descriptor.getClass().getName()));
+                    logger.error(LoggingOps.THE_MODERN_WAY_MARKER, String.format("Duplicate IMongoDBDescriptor(%s) class (%s)", name, descriptor.getClass().getName()));
                 }
             }
         }
