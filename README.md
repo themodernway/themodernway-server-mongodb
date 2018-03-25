@@ -1,6 +1,8 @@
 The Modern Way Server MongoDB
 ======
 
+![<TMW>](http://docs.themodernway.com/tmw4.jpg)
+
 The Modern Way Server MongoDB is a package containing basic server MongoDB support.
 
 https://github.com/themodernway/themodernway-server-mongodb
