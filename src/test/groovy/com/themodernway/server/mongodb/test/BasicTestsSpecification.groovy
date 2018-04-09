@@ -23,7 +23,7 @@ public class BasicTestsSpecification extends ServerCoreSpecification implements 
 {
     def setupSpec()
     {
-        setupServerCoreDefault(
+        setupServerCoreDefault(BasicTestsSpecification,
                 "classpath:/com/themodernway/server/mongodb/test/ApplicationContext.xml",
                 "classpath:/com/themodernway/server/core/config/CoreApplicationContext.xml"
                 )
