@@ -15,7 +15,9 @@
  */
 
 buildscript {
-    repositories { mavenCentral() }
+    repositories {
+    	mavenCentral()
+    }
     dependencies {
         classpath(group: 'org.ajoberstar', name: 'grgit', version: '1.7.2')
         classpath(group: 'commons-codec', name: 'commons-codec', version: '1.11')
@@ -46,7 +48,7 @@ sourceCompatibility = 1.8
 
 targetCompatibility = 1.8
 
-version = '2.1.6-RELEASE'
+version = '2.2.1-RELEASE'
 
 group = 'com.themodernway'
 
@@ -62,9 +64,8 @@ checkstyle {
 tasks.withType(Checkstyle) { source 'src/main' }
 
 task deleteConfigs(type: Delete) {
-    def tree = project.fileTree(dir: "${buildDir}/resources/main")
-    tree.each { File file ->
-        delete(file)
+	project.fileTree(dir: "${buildDir}/resources/main").each { file ->
+        file.delete()
     }
 }
 
@@ -239,10 +240,9 @@ tasks.withType(GroovyCompile) {
 }
 
 dependencies {
-    compile(group: 'com.themodernway', name: 'themodernway-server-core', version: '2.1.6-RELEASE')
+    compile(group: 'com.themodernway', name: 'themodernway-server-core', version: '2.2.1-RELEASE')
     compile(group: 'org.mongodb', name: 'mongodb-driver', version: '3.6.3')
     compileOnly(group: 'javax.servlet', name: 'javax.servlet-api', version: '3.1.0')
-    testCompile(group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.3')
 }
 
 artifacts {
@@ -303,8 +303,8 @@ uploadArchives {
 }
 
 def List<String> getJavaDocLinks() {
-    List list = []
-    File data = project.file('config/javadoc/JAVADOC_LINK_SITES.txt')
+    def list = []
+    def data = project.file('config/javadoc/JAVADOC_LINK_SITES.txt')
     if (data.exists()) {
         data.eachLine { line ->
             list << line
