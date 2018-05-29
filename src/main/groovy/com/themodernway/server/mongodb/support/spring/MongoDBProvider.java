@@ -20,7 +20,6 @@ import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.List;
 
-import org.slf4j.Logger;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
@@ -28,13 +27,12 @@ import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 
 import com.themodernway.common.api.java.util.CommonOps;
 import com.themodernway.common.api.java.util.StringOps;
+import com.themodernway.server.core.AbstractCoreLoggingBase;
 import com.themodernway.server.core.io.IO;
 import com.themodernway.server.core.logging.LoggingOps;
 
-public class MongoDBProvider implements BeanFactoryAware, IMongoDBProvider
+public class MongoDBProvider extends AbstractCoreLoggingBase implements BeanFactoryAware, IMongoDBProvider
 {
-    private static final Logger                             logger        = LoggingOps.getLogger(MongoDBProvider.class);
-
     private final String                                    m_default_name;
 
     private final String                                    m_default_base;
@@ -97,15 +95,15 @@ public class MongoDBProvider implements BeanFactoryAware, IMongoDBProvider
 
                 if (null == m_descriptors.get(name))
                 {
-                    if (logger.isInfoEnabled())
+                    if (logger().isInfoEnabled())
                     {
-                        logger.info(LoggingOps.THE_MODERN_WAY_MARKER, String.format("Adding IMongoDBDescriptor(%s) class (%s)", name, descriptor.getClass().getName()));
+                        logger().info(LoggingOps.THE_MODERN_WAY_MARKER, String.format("Adding IMongoDBDescriptor(%s) class (%s)", name, descriptor.getClass().getName()));
                     }
                     m_descriptors.put(name, descriptor);
                 }
-                else if (logger.isErrorEnabled())
+                else if (logger().isErrorEnabled())
                 {
-                    logger.error(LoggingOps.THE_MODERN_WAY_MARKER, String.format("Duplicate IMongoDBDescriptor(%s) class (%s)", name, descriptor.getClass().getName()));
+                    logger().error(LoggingOps.THE_MODERN_WAY_MARKER, String.format("Duplicate IMongoDBDescriptor(%s) class (%s)", name, descriptor.getClass().getName()));
                 }
             }
         }

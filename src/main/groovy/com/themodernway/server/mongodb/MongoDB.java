@@ -87,8 +87,6 @@ import com.themodernway.server.mongodb.support.spring.IMongoDBOptions;
 
 public final class MongoDB implements ICoreCommon
 {
-    private static final Logger                m_logger = LoggingOps.getLogger(MongoDB.class);
-
     private final MongoClient                  m_mongo;
 
     private final String                       m_usedb;
@@ -162,12 +160,6 @@ public final class MongoDB implements ICoreCommon
         }
     }
 
-    @Override
-    public Logger logger()
-    {
-        return m_logger;
-    }
-
     public boolean isAddingID()
     {
         return m_useid;
@@ -217,8 +209,6 @@ public final class MongoDB implements ICoreCommon
 
         private final boolean         m_id;
 
-        private static final Logger   m_logger = LoggingOps.getLogger(MDatabase.class);
-
         protected MDatabase(final MongoDatabase db, final boolean id, final IMongoDBOptions op)
         {
             m_id = id;
@@ -226,12 +216,6 @@ public final class MongoDB implements ICoreCommon
             m_op = op;
 
             m_db = requireNonNull(db);
-        }
-
-        @Override
-        public Logger logger()
-        {
-            return m_logger;
         }
 
         public boolean isCreateID()
@@ -299,15 +283,13 @@ public final class MongoDB implements ICoreCommon
         }
     }
 
-    public static final class MCollectionPreferences implements IHasLogging
+    public static final class MCollectionPreferences
     {
         private final WriteConcern   m_write;
 
         private final ReadPreference m_prefs;
 
         private final CodecRegistry  m_codec;
-
-        private static final Logger  m_logger = LoggingOps.getLogger(MCollectionPreferences.class);
 
         public MCollectionPreferences(final WriteConcern write, final ReadPreference prefs, final CodecRegistry codec)
         {
@@ -384,12 +366,6 @@ public final class MongoDB implements ICoreCommon
             }
             return collection.withCodecRegistry(codec);
         }
-
-        @Override
-        public Logger logger()
-        {
-            return m_logger;
-        }
     }
 
     public static final class MCollection implements ICoreCommon, INamed
@@ -398,19 +374,11 @@ public final class MongoDB implements ICoreCommon
 
         private final boolean                   m_id;
 
-        private static final Logger             m_logger = LoggingOps.getLogger(MCollection.class);
-
         protected MCollection(final MongoCollection<Document> collection, final boolean id)
         {
             m_collection = requireNonNull(collection);
 
             m_id = id;
-        }
-
-        @Override
-        public Logger logger()
-        {
-            return m_logger;
         }
 
         public boolean isCreateID()
@@ -521,10 +489,6 @@ public final class MongoDB implements ICoreCommon
         {
             if (list.isEmpty())
             {
-                if (logger().isWarnEnabled())
-                {
-                    logger().warn(LoggingOps.THE_MODERN_WAY_MARKER, "MCollection.insertMany(empty)");
-                }
                 return this;
             }
             if (1 == list.size())

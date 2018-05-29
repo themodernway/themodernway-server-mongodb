@@ -39,7 +39,7 @@ import groovy.transform.CompileStatic
 import groovy.transform.Memoized
 
 @CompileStatic
-public trait MongoDBTrait
+public trait MongoDBGroovyTrait
 {
     @Memoized
     public IMongoDBContext getMongoDBContext()
