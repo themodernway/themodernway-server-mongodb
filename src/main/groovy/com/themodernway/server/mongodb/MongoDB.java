@@ -698,13 +698,7 @@ public final class MongoDB implements ICoreCommon
 
         public final Map<String, ?> findOne(final MQuery query)
         {
-            final FindIterable<Document> iter = m_collection.find(requireNonNull(query)).limit(1).batchSize(1).projection(MProjection.NO_ID());
-
-            if (null != iter)
-            {
-                return iter.first();
-            }
-            return null;
+            return m_collection.find(requireNonNull(query)).limit(1).batchSize(1).projection(MProjection.NO_ID()).first();
         }
 
         public final Optional<Map<String, ?>> findOneOptional(final Map<String, ?> query)
